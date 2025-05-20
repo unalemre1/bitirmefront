@@ -6,6 +6,7 @@ import Logo from './header/Logo.vue'
 import LoginButton from './header/LoginButton.vue'
 import LogoutButton from './header/LogoutButton.vue'
 import AboutButton from './header/AboutButton.vue'
+import ProfileButton from './header/ProfileButton.vue'
 import { ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
@@ -31,7 +32,6 @@ onMounted(async () => {
   await checkAuth()
 })
 
-// Watch for route changes to update auth state
 watch(() => route.path, async () => {
   await checkAuth()
 })
@@ -55,6 +55,7 @@ watch(() => route.path, async () => {
           :is-dark-mode="isDarkMode" 
           @toggle="toggleTheme" 
         />
+        <ProfileButton v-if="isAuthenticated" />
         <LogoutButton v-if="isAuthenticated" />
         <LoginButton v-else />
       </div>

@@ -11,6 +11,7 @@ import ChatView from '../views/ChatView.vue'
 import AboutView from '../views/AboutView.vue'
 import SubscriptionView from '../views/SubscriptionView.vue'
 import CheckoutView from '../views/CheckoutView.vue'
+import ProfileView from '../views/ProfileView.vue'
 
 const routes: RouteRecordRaw[] = [
   {
@@ -74,6 +75,12 @@ const routes: RouteRecordRaw[] = [
     path: '/checkout',
     name: 'Checkout',
     component: CheckoutView,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/profile',
+    name: 'Profile',
+    component: ProfileView,
     meta: { requiresAuth: true }
   },
   // Catch all 404
