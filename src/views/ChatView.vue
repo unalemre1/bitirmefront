@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
-import { useTitle, useWindowSize } from '@vueuse/core'
-import FooterComponent from '../components/footer/FooterComponent.vue'
+import { ref, onMounted } from 'vue'
+import { useTitle } from '@vueuse/core'
 
 useTitle('AI Chat | LexAI')
 
@@ -236,7 +235,7 @@ onMounted(() => {
 }
 
 .new-chat-button:hover {
-  background-color: var(--primary-dark-color, #0056b3); /* Darker shade on hover, define --primary-dark-color if needed */
+  background-color: var(--primary-dark-color, #0056b3);
 }
 
 .conversations-list {
@@ -246,7 +245,7 @@ onMounted(() => {
 }
 
 .conversation-item {
-  background: var(--bg-color); /* Light background for items */
+  background: var(--bg-color);
   border: 1px solid var(--border-color);
   border-radius: 8px;
   padding: 0.75rem;
@@ -256,21 +255,21 @@ onMounted(() => {
   align-items: center;
   gap: 0.5rem;
   cursor: pointer;
-  font-size: 0.95rem; /* Slightly smaller font for conversation items */
-  transition: background-color 0.2s ease, border-color 0.2s ease; /* Smooth hover */
-  width: 100%; /* Ensure full width */
-  white-space: nowrap; /* Prevent text wrapping */
-  overflow: hidden; /* Hide overflow text */
-  text-overflow: ellipsis; /* Add ellipsis for overflow */
+  font-size: 0.95rem;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .conversation-item i {
-  color: var(--primary-color); /* Icon color */
+  color: var(--primary-color);
 }
 
 .conversation-item:hover {
-  background: var(--hover-bg-color, #e0e0e0); /* Define --hover-bg-color or use a light grey */
-  border-color: var(--primary-color); /* Highlight border on hover */
+  background: var(--hover-bg-color, #e0e0e0);
+  border-color: var(--primary-color);
 }
 
 .conversation-item.active {
@@ -280,9 +279,8 @@ onMounted(() => {
 }
 
 .conversation-item.active i {
-  color: white; /* Active icon color */
+  color: white;
 }
-
 
 /* --- Overlay Styles --- */
 .sidebar-overlay {
@@ -347,20 +345,25 @@ onMounted(() => {
   box-shadow: 0 2px 4px var(--shadow-color);
 }
 
+.header-content h1 {
+  font-size: 1.5rem; /* Küçültüldü */
+  margin: 0;
+}
+
 /* The main sidebar toggle button (in chat-header) */
 .menu-toggle-button {
   background: none;
   border: none;
-  font-size: 1.5rem; /* Make icon larger */
+  font-size: 1.5rem;
   color: var(--text-color);
   cursor: pointer;
-  padding: 0.5rem; /* Add padding for better click area */
-  border-radius: 50%; /* Make it circular */
-  transition: background-color 0.2s ease; /* Smooth hover effect */
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition: background-color 0.2s ease;
 }
 
 .menu-toggle-button:hover {
-  background-color: var(--hover-bg-color, rgba(0, 0, 0, 0.05)); /* Light background on hover */
+  background-color: var(--hover-bg-color, rgba(0, 0, 0, 0.05));
 }
 
 .messages-area {
@@ -369,7 +372,7 @@ onMounted(() => {
   padding: 1rem;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.5rem; /* Mesajlar arası boşluk artırıldı */
   background: var(--card-bg);
   border-radius: 12px;
   box-shadow: 0 2px 4px var(--shadow-color);
@@ -423,7 +426,7 @@ onMounted(() => {
 
 /* --- Input Area Styles --- */
 .input-area {
-  padding: 1rem;
+  padding: 1.5rem 1rem; /* Üstte boşluk artırıldı */
   background: var(--card-bg);
   border-radius: 12px;
   box-shadow: 0 2px 4px var(--shadow-color);
@@ -477,12 +480,12 @@ onMounted(() => {
     left: 0;
     width: 100%;
     border-radius: 0;
-    padding: 0.75rem 1rem;
+    padding: 1rem 1rem; /* Üst boşluk biraz artırıldı */
     box-shadow: 0 -2px 8px var(--shadow-color);
   }
 
   .messages-area {
-    padding-bottom: 100px;
+    padding-bottom: 110px;
   }
 }
 </style>
