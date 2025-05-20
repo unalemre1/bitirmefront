@@ -60,7 +60,8 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="chat-page" :class="{ 'show-desktop': showSidebar }"> <aside class="chat-sidebar" :class="{ 'show-desktop': showSidebar, 'show-mobile': showSidebar }">
+  <div class="chat-page" :class="{ 'show-desktop': showSidebar }">
+    <aside class="chat-sidebar" :class="{ 'show-desktop': showSidebar, 'show-mobile': showSidebar }">
       <div class="sidebar-header">
         <h2>Sohbetler</h2>
         <button class="close-sidebar-mobile-button" @click="closeSidebar">
@@ -80,7 +81,7 @@ onMounted(() => {
           <button class="conversation-item">
             <i class="bi bi-chat-left-text"></i>
             <span>Önceki Sohbet 1</span>
-          </button>
+           </button>
            <button class="conversation-item">
             <i class="bi bi-chat-left-text"></i>
             <span>Uzun Bir Sohbet Başlığı Burada Yer Alacak</span>
@@ -101,7 +102,8 @@ onMounted(() => {
           <i :class="showSidebar ? 'bi bi-x-lg' : 'bi bi-list'"></i>
         </button>
         <div class="header-content">
-          <h1 class="chat-title">LexAI Chat</h1> </div>
+          <h1 class="chat-title">LexAI Chat</h1>
+        </div>
       </header>
 
       <div class="messages-area" ref="chatContainer">
@@ -138,7 +140,7 @@ onMounted(() => {
 </template>
 
 <style>
-/* Keeping your original color variables */
+/* Reverted to original color variables */
 :root {
   --primary-color: #007bff;
   --secondary-color: #6c757d;
@@ -149,16 +151,16 @@ onMounted(() => {
   --border-color: #dee2e6;
   --shadow-color: rgba(0, 0, 0, 0.1);
 
-  /* Define some new variables for subtle interactions that blend with existing colors */
-  --primary-dark-color: #0056b3; /* Darker shade of primary */
-  --text-light-color: #6c757d; /* Often useful for secondary text */
-  --hover-bg-color: #e9ecef; /* A light hover background for neutral elements */
-  --primary-disabled: #a0c3f9; /* A light primary for disabled states (if needed) */
+  /* Keeping the helper variables for aesthetic enhancements */
+  --primary-dark-color: #0056b3; /* Darker shade of primary for hover */
+  --text-light-color: #6c757d; /* Lighter text/icon color */
+  --hover-bg-color: #e9ecef; /* Light background for general hover */
+  --primary-disabled: #a0c3f9; /* Lighter primary for disabled states */
 }
 
 /* Basic body styling for consistent font */
 body {
-  font-family: 'Arial', sans-serif; /* Using a common sans-serif font, feel free to replace with 'Roboto' if you include it */
+  font-family: 'Arial', sans-serif;
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -175,7 +177,7 @@ body {
   display: flex;
   overflow: hidden;
   border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Slightly more pronounced shadow */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
 /* --- Sidebar Styles --- */
@@ -183,11 +185,11 @@ body {
   width: 280px;
   height: 100%;
   background: var(--card-bg);
-  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.08); /* Lighter sidebar shadow */
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.08);
   z-index: 1000;
   flex-shrink: 0;
   transition: transform 0.3s ease-out, margin-left 0.3s ease-out;
-  border-right: 1px solid var(--border-color); /* Subtle border for separation */
+  border-right: 1px solid var(--border-color);
 }
 
 /* Desktop Sidebar Behavior: Pushes content */
@@ -226,7 +228,7 @@ body {
   align-items: center;
   border-bottom: 1px solid var(--border-color);
   background-color: var(--card-bg);
-  z-index: 1; /* Ensures header is above scrolling content */
+  z-index: 1;
 }
 
 .sidebar-header h2 {
@@ -240,7 +242,7 @@ body {
   background: none;
   border: none;
   font-size: 1.5rem;
-  color: var(--text-light-color); /* Use light text color for icons */
+  color: var(--text-light-color);
   cursor: pointer;
   display: none;
   padding: 0.5rem;
@@ -263,9 +265,9 @@ body {
   padding: 1rem;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem; /* Slightly reduced gap for a denser list */
-  overflow-y: auto; /* Allow scrolling for conversations */
-  flex-grow: 1; /* Allow content to take available space */
+  gap: 0.75rem;
+  overflow-y: auto;
+  flex-grow: 1;
 }
 
 .new-chat-button {
@@ -283,7 +285,7 @@ body {
   justify-content: flex-start;
   font-size: 1rem;
   transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15); /* Subtle shadow for button */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
 }
 
 .new-chat-button:hover {
@@ -293,7 +295,7 @@ body {
 
 .new-chat-button:active {
   transform: translateY(0);
-  box-shadow: none; /* Remove shadow on active for a pressed look */
+  box-shadow: none;
 }
 
 .conversations-list {
@@ -303,8 +305,8 @@ body {
 }
 
 .conversation-item {
-  background: none; /* No background by default */
-  border: none; /* No border by default */
+  background: none;
+  border: none;
   border-radius: 8px;
   padding: 0.75rem 1rem;
   text-align: left;
@@ -323,7 +325,7 @@ body {
 }
 
 .conversation-item i {
-  color: var(--text-light-color); /* Softer icon color */
+  color: var(--text-light-color);
   font-size: 1.1rem;
 }
 
@@ -336,7 +338,7 @@ body {
   background: var(--primary-color);
   color: white;
   font-weight: 500;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Subtle shadow for active item */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .conversation-item.active i {
@@ -376,21 +378,21 @@ body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 1.5rem; /* Increased padding around the chat area */
+  padding: 1.5rem;
   max-width: 100%;
   overflow: hidden;
-  transition: margin-left 0.3s ease-out; /* Keep for potential future use or specific alignment */
-  margin-left: 0; /* Default: no margin */
+  transition: margin-left 0.3s ease-out;
+  margin-left: 0;
   width: 100%;
 }
 
 @media (min-width: 769px) {
   .chat-main.shifted-desktop {
-    margin-left: 0; /* Ensures no extra shift from chat-main itself */
+    margin-left: 0;
   }
 
-  .chat-page.show-desktop { /* Targets the chat-page when sidebar is open on desktop */
-    gap: 1.5rem; /* Increased gap between sidebar and chat content */
+  .chat-page.show-desktop {
+    gap: 1.5rem;
   }
 }
 
@@ -413,8 +415,8 @@ body {
 
 /* Style for the chat title */
 .chat-title {
-  font-size: 1.35rem; /* Reduced font size for LexAI Chat */
-  margin: 0; /* Remove default margin */
+  font-size: 1.35rem;
+  margin: 0;
   color: var(--text-color);
 }
 
@@ -508,7 +510,7 @@ body {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
   position: relative;
   z-index: 1002;
-  margin-top: 1.75rem; /* Increased margin to push it further down */
+  margin-top: 1.75rem;
 }
 
 .input-form {
@@ -592,7 +594,7 @@ body {
   .input-area {
     padding: 0.75rem 1rem;
     border-radius: 0;
-    margin-top: 0; /* Reset margin-top for fixed mobile input */
+    margin-top: 0;
   }
 
   .messages-area {
