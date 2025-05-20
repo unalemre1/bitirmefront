@@ -480,7 +480,7 @@ onMounted(() => {
     left: 0;
     width: 100%;
     border-radius: 0;
-    padding: 1rem 1rem; /* Üst boşluk biraz artırıldı */
+    padding: 10rem 1rem; /* Üst boşluk biraz artırıldı */
     box-shadow: 0 -2px 8px var(--shadow-color);
   }
 
