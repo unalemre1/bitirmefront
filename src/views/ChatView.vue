@@ -53,7 +53,7 @@ onMounted(() => {
 <template>
   <div class="chat-page">
     <!-- Main Chat Area -->
-    <main class="chat-main">
+    <main class="chat-main" :class="{ 'sidebar-open': showSidebar }">
       <!-- Chat Header -->
       <header class="chat-header">
         <button class="menu-button" @click="showSidebar = !showSidebar">
@@ -144,6 +144,14 @@ onMounted(() => {
   max-width: 1200px;
   margin: 0 auto;
   padding: 1rem;
+  transition: margin-left 0.3s ease, width 0.3s ease;
+  margin-left: 0;
+  width: 100%;
+}
+
+.chat-main.sidebar-open {
+  margin-left: 280px;
+  width: calc(100% - 280px);
 }
 
 /* Chat Header */
@@ -181,13 +189,6 @@ onMounted(() => {
   font-size: 1.5rem;
   margin: 0;
   color: var(--text-color);
-}
-
-.subtitle {
-  font-size: 0.875rem;
-  color: var(--text-color);
-  opacity: 0.7;
-  margin: 0.25rem 0 0 0;
 }
 
 /* Messages Area */
@@ -426,9 +427,15 @@ onMounted(() => {
   visibility: visible;
 }
 
+/* Mobil Uyum */
 @media (max-width: 768px) {
   .chat-main {
     padding: 0.5rem;
+  }
+
+  .chat-main.sidebar-open {
+    margin-left: 0;
+    width: 100%;
   }
 
   .message {
