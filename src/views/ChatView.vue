@@ -11,11 +11,7 @@ const messages = ref<Array<{ role: 'user' | 'assistant', content: string }>>([
 const newMessage = ref('')
 const chatContainer = ref<HTMLDivElement | null>(null)
 
-// Ekran genişliğini kontrol et
-const { width } = useWindowSize()
-const isMobile = computed(() => width.value <= 768)
-
-const showSidebar = ref(!isMobile.value)
+const showSidebar = ref(false)
 
 const sendMessage = async () => {
   if (!newMessage.value.trim()) return
@@ -57,11 +53,11 @@ onMounted(() => {
 
 <template>
   <div class="chat-page">
-    <!-- Sidebar (kalıcı masaüstü / mobilde geçici) -->
-    <aside class="chat-sidebar" :class="{ show: showSidebar, mobile: isMobile }">
+    <!-- Sidebar -->
+    <aside class="chat-sidebar" :class="{ show: showSidebar }">
       <div class="sidebar-header">
         <h2>Sohbetler</h2>
-        <button v-if="isMobile" class="close-button" @click="showSidebar = false">
+        <button class="close-button" @click="showSidebar = false">
           <i class="bi bi-x-lg"></i>
         </button>
       </div>
@@ -79,18 +75,17 @@ onMounted(() => {
       </div>
     </aside>
 
-    <!-- Overlay sadece mobilde -->
+    <!-- Overlay -->
     <div 
       class="sidebar-overlay" 
-      v-if="isMobile"
       :class="{ show: showSidebar }"
       @click="showSidebar = false"
     ></div>
 
     <!-- Main Chat -->
-    <main class="chat-main" :class="{ 'sidebar-visible': showSidebar && !isMobile }">
+    <main class="chat-main">
       <header class="chat-header">
-        <button class="menu-button" @click="showSidebar = !showSidebar" v-if="isMobile">
+        <button class="menu-button" @click="showSidebar = !showSidebar">
           <i class="bi bi-list"></i>
         </button>
         <div class="header-content">
@@ -140,7 +135,6 @@ onMounted(() => {
   overflow: hidden;
 }
 
-/* Sidebar */
 .chat-sidebar {
   width: 280px;
   height: 100%;
@@ -149,22 +143,14 @@ onMounted(() => {
   z-index: 1000;
   flex-shrink: 0;
   box-shadow: 2px 0 8px var(--shadow-color);
-}
-
-.chat-sidebar.mobile {
   position: fixed;
   top: 0;
   left: 0;
   transform: translateX(-100%);
 }
 
-.chat-sidebar.mobile.show {
+.chat-sidebar.show {
   transform: translateX(0);
-}
-
-.chat-sidebar:not(.mobile) {
-  position: relative;
-  transform: translateX(0) !important;
 }
 
 .sidebar-header {
@@ -229,7 +215,6 @@ onMounted(() => {
   cursor: pointer;
 }
 
-/* Overlay (mobilde) */
 .sidebar-overlay {
   position: fixed;
   top: 0;
@@ -248,7 +233,6 @@ onMounted(() => {
   visibility: visible;
 }
 
-/* Chat Main */
 .chat-main {
   flex: 1;
   display: flex;
@@ -256,6 +240,8 @@ onMounted(() => {
   padding: 1rem;
   max-width: 100%;
   overflow: hidden;
+  margin-left: 0;
+  width: 100%;
 }
 
 .chat-header {
