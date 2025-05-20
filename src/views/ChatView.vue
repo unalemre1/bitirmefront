@@ -486,7 +486,7 @@ onMounted(() => {
 
   .messages-area {
     padding-bottom: 110px;
-    padding-top: 20px;
+    padding-top: 300px;
   }
 }
 </style>
