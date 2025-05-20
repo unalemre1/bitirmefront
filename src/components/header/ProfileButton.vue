@@ -10,7 +10,7 @@ const router = useRouter()
     @click="router.push('/profile')"
   >
     <i class="bi bi-person-circle"></i>
-    <span>Profilim</span>
+    <span>Profil</span>
   </button>
 </template>
 
