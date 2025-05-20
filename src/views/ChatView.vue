@@ -482,7 +482,6 @@ onMounted(() => {
     border-radius: 0;
     padding: 1rem 1rem; /* Üst boşluk biraz artırıldı */
     box-shadow: 0 -2px 8px var(--shadow-color);
-    margin-top: 20px;
   }
 
   .messages-area {
