@@ -5,7 +5,9 @@ import FooterComponent from '../components/footer/FooterComponent.vue'
 
 useTitle('AI Chat | LexAI')
 
-const messages = ref<Array<{ role: 'user' | 'assistant', content: string }>>([  { role: 'assistant', content: 'Merhaba! Size nasıl yardımcı olabilirim?' }])
+const messages = ref<Array<{ role: 'user' | 'assistant', content: string }>>([
+  { role: 'assistant', content: 'Merhaba! Size nasıl yardımcı olabilirim?' }
+])
 const newMessage = ref('')
 const chatContainer = ref<HTMLDivElement | null>(null)
 
@@ -51,7 +53,7 @@ onMounted(() => {
 
 <template>
   <div class="chat-page">
-    <aside class="chat-sidebar" :class="{ show: showSidebar }">
+    <aside class="chat-sidebar" :class="{ 'show-desktop': showSidebar, 'show-mobile': showSidebar }">
       <div class="sidebar-header">
         <h2>Sohbetler</h2>
         <button class="close-button" @click="showSidebar = false">
@@ -74,11 +76,11 @@ onMounted(() => {
 
     <div
       class="sidebar-overlay"
-      :class="{ show: showSidebar }"
+      :class="{ 'show-mobile': showSidebar }"
       @click="showSidebar = false"
     ></div>
 
-    <main class="chat-main" :class="{ shifted: showSidebar }">
+    <main class="chat-main" :class="{ 'shifted-desktop': showSidebar }">
       <header class="chat-header">
         <button class="menu-button" @click="showSidebar = !showSidebar">
           <i class="bi bi-list"></i>
@@ -126,27 +128,52 @@ onMounted(() => {
   height: 90vh;
   background: var(--bg-color);
   position: relative;
-  display: flex;
+  display: flex; /* Flex container */
   overflow: hidden;
 }
 
+/* --- Sidebar Styles --- */
 .chat-sidebar {
   width: 280px;
   height: 100%;
   background: var(--card-bg);
-  transition: transform 0.3s ease-out;
-  z-index: 1000;
-  flex-shrink: 0;
   box-shadow: 2px 0 8px var(--shadow-color);
-  position: absolute;
-  top: 0;
-  left: 0;
+  z-index: 1000; /* Higher than main content */
+  flex-shrink: 0;
+  transition: transform 0.3s ease-out; /* For desktop animation */
+  
+  /* Default: Hidden on desktop initially */
   transform: translateX(-100%);
+  position: absolute; /* Default for mobile overlap */
 }
 
-.chat-sidebar.show {
-  transform: translateX(0%);
+/* Sidebar behavior for desktop */
+@media (min-width: 769px) {
+  .chat-sidebar {
+    position: relative; /* Make it part of the flex flow on desktop */
+    transform: translateX(-100%); /* Hidden by default */
+  }
+
+  .chat-sidebar.show-desktop {
+    transform: translateX(0); /* Show by sliding into view */
+  }
 }
+
+/* Sidebar behavior for mobile (still overlays) */
+@media (max-width: 768px) {
+  .chat-sidebar {
+    position: fixed; /* Keep it fixed on mobile */
+    top: 0;
+    left: 0;
+    height: 100%;
+    transform: translateX(-100%);
+  }
+
+  .chat-sidebar.show-mobile {
+    transform: translateX(0);
+  }
+}
+
 
 .sidebar-header {
   padding: 1rem;
@@ -207,41 +234,65 @@ onMounted(() => {
   border: none;
   font-size: 1.25rem;
   color: var(--text-color);
-  cursor: pointer;
 }
 
+/* --- Overlay Styles --- */
 .sidebar-overlay {
   position: fixed;
   top: 0;
   left: 0;
   height: 100%;
   width: 100%;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.5); /* Dimming effect */
   opacity: 0;
   visibility: hidden;
   transition: all 0.3s ease;
   z-index: 999;
 }
 
-.sidebar-overlay.show {
-  opacity: 1;
-  visibility: visible;
+/* Only show overlay on mobile when sidebar is active */
+@media (max-width: 768px) {
+  .sidebar-overlay.show-mobile {
+    opacity: 1;
+    visibility: visible;
+  }
 }
 
+/* Hide overlay completely on desktop */
+@media (min-width: 769px) {
+  .sidebar-overlay {
+    display: none; /* Never show overlay on desktop */
+  }
+}
+
+
+/* --- Main Chat Area Styles --- */
 .chat-main {
-  flex: 1;
+  flex: 1; /* Take remaining space */
   display: flex;
   flex-direction: column;
   padding: 1rem;
   max-width: 100%;
   overflow: hidden;
-  margin-left: 0;
-  width: 100%;
-  transition: margin-left 0.3s ease-out;
+  transition: margin-left 0.3s ease-out; /* Animate margin-left */
+  margin-left: 0; /* Default margin-left */
+  width: 100%; /* Ensure it takes full width initially */
 }
 
-.chat-main.shifted {
-  margin-left: 280px;
+/* Shift main content on desktop when sidebar is open */
+@media (min-width: 769px) {
+  .chat-main.shifted-desktop {
+    margin-left: 0; /* Reset margin-left because sidebar is now part of flex flow */
+    /* If you want chat-main to shrink, you'd adjust flex-grow or max-width here */
+    /* Example: max-width: calc(100% - 280px); */
+  }
+}
+
+/* On mobile, main content does not shift, it's overlaid */
+@media (max-width: 768px) {
+  .chat-main.shifted-desktop { /* This class name is ignored on mobile */
+    margin-left: 0;
+  }
 }
 
 .chat-header {
@@ -321,14 +372,14 @@ onMounted(() => {
   color: white;
 }
 
+/* --- Input Area Styles --- */
 .input-area {
   padding: 1rem;
   background: var(--card-bg);
   border-radius: 12px;
   box-shadow: 0 2px 4px var(--shadow-color);
-  /* Added z-index for better layering */
-  position: relative; /* Needed for z-index to work */
-  z-index: 1001; /* Higher than sidebar-overlay */
+  position: relative; /* Needed for z-index */
+  z-index: 1002; /* Ensure it's above everything else */
 }
 
 .input-form {
@@ -360,7 +411,7 @@ onMounted(() => {
   cursor: not-allowed;
 }
 
-/* Media queries for responsiveness */
+/* --- Responsive Adjustments --- */
 @media (max-width: 768px) {
   .chat-main {
     padding: 0.5rem;
@@ -370,36 +421,19 @@ onMounted(() => {
     max-width: 90%;
   }
 
-  /* On smaller screens, the sidebar should still overlay, so no margin shift for main content */
-  .chat-main.shifted {
-    margin-left: 0;
-  }
-
-  /* When the sidebar is open on small screens, the main content (including input) is still visible behind the overlay.
-     To ensure the input field is always interactive, we can adjust the overlay slightly
-     or ensure the input area's z-index is super high.
-     A better solution for small screens is to not cover the input area at all.
-  */
-  .sidebar-overlay.show {
-    /* Adjust height to not cover the input area */
-    height: calc(100% - var(--input-area-height, 80px)); /* You might need to define --input-area-height or calculate it dynamically */
-  }
-
+  /* Fixed input area for mobile */
   .input-area {
-    /* On small screens, keep it at the bottom of the viewport */
     position: fixed;
     bottom: 0;
     left: 0;
     width: 100%;
-    z-index: 1002; /* Ensure it's above the overlay */
-    padding: 1rem; /* Keep padding */
-    border-radius: 0; /* Remove border-radius at bottom */
-    box-shadow: 0 -2px 8px var(--shadow-color); /* Shadow on top */
+    border-radius: 0;
+    padding: 0.75rem 1rem; /* Adjust padding for mobile */
+    box-shadow: 0 -2px 8px var(--shadow-color);
   }
 
   .messages-area {
-    /* Adjust messages-area to not be covered by fixed input-area */
-    padding-bottom: 100px; /* Approximately input-area height + padding */
+    padding-bottom: 100px; /* Space for the fixed input area on mobile */
   }
 }
 </style>
