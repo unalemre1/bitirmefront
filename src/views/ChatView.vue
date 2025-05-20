@@ -60,7 +60,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="chat-page">
+  <div class="chat-page" :class="{ 'show-desktop': showSidebar }">
     <aside class="chat-sidebar" :class="{ 'show-desktop': showSidebar, 'show-mobile': showSidebar }">
       <div class="sidebar-header">
         <h2>Sohbetler</h2>
@@ -81,6 +81,10 @@ onMounted(() => {
           <button class="conversation-item">
             <i class="bi bi-chat-left-text"></i>
             <span>Önceki Sohbet 1</span>
+           </button>
+           <button class="conversation-item">
+            <i class="bi bi-chat-left-text"></i>
+            <span>Uzun Bir Sohbet Başlığı Burada Yer Alacak</span>
           </button>
         </div>
       </div>
@@ -98,7 +102,7 @@ onMounted(() => {
           <i :class="showSidebar ? 'bi bi-x-lg' : 'bi bi-list'"></i>
         </button>
         <div class="header-content">
-          <h1>LexAI Chat</h1>
+          <h1 class="chat-title">LexAI Chat</h1>
         </div>
       </header>
 
@@ -135,6 +139,36 @@ onMounted(() => {
   </div>
 </template>
 
+<style>
+/* Reverted to original color variables */
+:root {
+  --primary-color: #007bff;
+  --secondary-color: #6c757d;
+  --accent-color: #ffc107;
+  --text-color: #343a40;
+  --bg-color: #f8f9fa;
+  --card-bg: #ffffff;
+  --border-color: #dee2e6;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+
+  /* Keeping the helper variables for aesthetic enhancements */
+  --primary-dark-color: #0056b3; /* Darker shade of primary for hover */
+  --text-light-color: #6c757d; /* Lighter text/icon color */
+  --hover-bg-color: #e9ecef; /* Light background for general hover */
+  --primary-disabled: #a0c3f9; /* Lighter primary for disabled states */
+}
+
+/* Basic body styling for consistent font */
+body {
+  font-family: 'Arial', sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+</style>
+
 <style scoped>
 .chat-page {
   height: 90vh;
@@ -142,6 +176,8 @@ onMounted(() => {
   position: relative;
   display: flex;
   overflow: hidden;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
 /* --- Sidebar Styles --- */
@@ -149,10 +185,11 @@ onMounted(() => {
   width: 280px;
   height: 100%;
   background: var(--card-bg);
-  box-shadow: 2px 0 8px var(--shadow-color);
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.08);
   z-index: 1000;
   flex-shrink: 0;
   transition: transform 0.3s ease-out, margin-left 0.3s ease-out;
+  border-right: 1px solid var(--border-color);
 }
 
 /* Desktop Sidebar Behavior: Pushes content */
@@ -190,24 +227,37 @@ onMounted(() => {
   justify-content: space-between;
   align-items: center;
   border-bottom: 1px solid var(--border-color);
+  background-color: var(--card-bg);
+  z-index: 1;
+}
+
+.sidebar-header h2 {
+  font-size: 1.25rem;
+  color: var(--text-color);
+  margin: 0;
 }
 
 /* Close button specifically for the mobile sidebar */
 .close-sidebar-mobile-button {
   background: none;
   border: none;
-  font-size: 1.25rem;
-  color: var(--text-color);
+  font-size: 1.5rem;
+  color: var(--text-light-color);
   cursor: pointer;
-  display: none; /* Hidden by default */
-  padding: 0.5rem; /* Add padding for better click area */
-  border-radius: 50%; /* Make it circular */
+  display: none;
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition: background-color 0.2s ease;
 }
 
 @media (max-width: 768px) {
   .close-sidebar-mobile-button {
-    display: block; /* Show on mobile */
+    display: block;
   }
+}
+
+.close-sidebar-mobile-button:hover {
+  background-color: var(--hover-bg-color);
 }
 
 /* --- Sidebar Content Buttons --- */
@@ -215,28 +265,37 @@ onMounted(() => {
   padding: 1rem;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.75rem;
+  overflow-y: auto;
+  flex-grow: 1;
 }
 
 .new-chat-button {
   width: 100%;
-  padding: 0.75rem;
+  padding: 0.75rem 1rem;
   background: var(--primary-color);
   color: white;
   border: none;
   border-radius: 8px;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  justify-content: center; /* Center content */
-  font-size: 1rem; /* Ensure readable font size */
-  transition: background-color 0.2s ease; /* Smooth hover effect */
+  gap: 0.75rem;
+  justify-content: flex-start;
+  font-size: 1rem;
+  transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
 }
 
 .new-chat-button:hover {
-  background-color: var(--primary-dark-color, #0056b3); /* Darker shade on hover, define --primary-dark-color if needed */
+  background-color: var(--primary-dark-color);
+  transform: translateY(-1px);
+}
+
+.new-chat-button:active {
+  transform: translateY(0);
+  box-shadow: none;
 }
 
 .conversations-list {
@@ -246,41 +305,44 @@ onMounted(() => {
 }
 
 .conversation-item {
-  background: var(--bg-color); /* Light background for items */
-  border: 1px solid var(--border-color);
+  background: none;
+  border: none;
   border-radius: 8px;
-  padding: 0.75rem;
+  padding: 0.75rem 1rem;
   text-align: left;
   color: var(--text-color);
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.75rem;
   cursor: pointer;
-  font-size: 0.95rem; /* Slightly smaller font for conversation items */
-  transition: background-color 0.2s ease, border-color 0.2s ease; /* Smooth hover */
-  width: 100%; /* Ensure full width */
-  white-space: nowrap; /* Prevent text wrapping */
-  overflow: hidden; /* Hide overflow text */
-  text-overflow: ellipsis; /* Add ellipsis for overflow */
+  font-size: 0.9rem;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 400;
 }
 
 .conversation-item i {
-  color: var(--primary-color); /* Icon color */
+  color: var(--text-light-color);
+  font-size: 1.1rem;
 }
 
 .conversation-item:hover {
-  background: var(--hover-bg-color, #e0e0e0); /* Define --hover-bg-color or use a light grey */
-  border-color: var(--primary-color); /* Highlight border on hover */
+  background: var(--hover-bg-color);
+  color: var(--text-color);
 }
 
 .conversation-item.active {
   background: var(--primary-color);
   color: white;
-  border-color: var(--primary-color);
+  font-weight: 500;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .conversation-item.active i {
-  color: white; /* Active icon color */
+  color: white;
 }
 
 
@@ -316,7 +378,7 @@ onMounted(() => {
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 1rem;
+  padding: 1.5rem;
   max-width: 100%;
   overflow: hidden;
   transition: margin-left 0.3s ease-out;
@@ -326,7 +388,11 @@ onMounted(() => {
 
 @media (min-width: 769px) {
   .chat-main.shifted-desktop {
-    margin-left: 10px;
+    margin-left: 0;
+  }
+
+  .chat-page.show-desktop {
+    gap: 1.5rem;
   }
 }
 
@@ -342,43 +408,53 @@ onMounted(() => {
   gap: 1rem;
   background: var(--card-bg);
   border-radius: 12px;
-  padding: 1rem;
-  margin-bottom: 1rem;
-  box-shadow: 0 2px 4px var(--shadow-color);
+  padding: 0.75rem 1.25rem;
+  margin-bottom: 1.25rem;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
 }
+
+/* Style for the chat title */
+.chat-title {
+  font-size: 1.35rem;
+  margin: 0;
+  color: var(--text-color);
+}
+
 
 /* The main sidebar toggle button (in chat-header) */
 .menu-toggle-button {
   background: none;
   border: none;
-  font-size: 1.5rem; /* Make icon larger */
-  color: var(--text-color);
+  font-size: 1.6rem;
+  color: var(--text-light-color);
   cursor: pointer;
-  padding: 0.5rem; /* Add padding for better click area */
-  border-radius: 50%; /* Make it circular */
-  transition: background-color 0.2s ease; /* Smooth hover effect */
+  padding: 0.6rem;
+  border-radius: 50%;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .menu-toggle-button:hover {
-  background-color: var(--hover-bg-color, rgba(0, 0, 0, 0.05)); /* Light background on hover */
+  background-color: var(--hover-bg-color);
+  color: var(--text-color);
 }
 
 .messages-area {
   flex: 1;
   overflow-y: auto;
-  padding: 1rem;
+  padding: 1.5rem;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.75rem;
   background: var(--card-bg);
   border-radius: 12px;
-  box-shadow: 0 2px 4px var(--shadow-color);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
 }
 
 .message {
   display: flex;
-  gap: 1rem;
-  max-width: 80%;
+  gap: 0.75rem;
+  max-width: 85%;
+  align-items: flex-end;
 }
 
 .message.user {
@@ -387,12 +463,14 @@ onMounted(() => {
 }
 
 .message-avatar {
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
+  font-size: 1.1rem;
 }
 
 .message.assistant .message-avatar {
@@ -406,14 +484,17 @@ onMounted(() => {
 }
 
 .message-bubble {
-  padding: 1rem;
-  border-radius: 12px;
+  padding: 0.9rem 1.2rem;
+  border-radius: 18px;
   line-height: 1.5;
+  font-size: 0.95rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .message.assistant .message-bubble {
   background: var(--bg-color);
   color: var(--text-color);
+  border: 1px solid var(--border-color);
 }
 
 .message.user .message-bubble {
@@ -423,62 +504,97 @@ onMounted(() => {
 
 /* --- Input Area Styles --- */
 .input-area {
-  padding: 1rem;
+  padding: 1.25rem;
   background: var(--card-bg);
   border-radius: 12px;
-  box-shadow: 0 2px 4px var(--shadow-color);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
   position: relative;
   z-index: 1002;
+  margin-top: 1.75rem;
 }
 
 .input-form {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.75rem;
+  align-items: center;
 }
 
 .message-input {
   flex: 1;
-  padding: 0.75rem 1rem;
-  border: 2px solid var(--border-color);
-  border-radius: 8px;
+  padding: 0.9rem 1.2rem;
+  border: 1px solid var(--border-color);
+  border-radius: 24px;
   background: var(--bg-color);
   color: var(--text-color);
   font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.message-input:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
 }
 
 .send-button {
-  padding: 0.75rem 1.5rem;
+  padding: 0.8rem 1.4rem;
   background: var(--primary-color);
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: 24px;
   cursor: pointer;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.send-button:hover {
+  background-color: var(--primary-dark-color);
+  transform: translateY(-1px);
+}
+
+.send-button:active {
+  transform: translateY(0);
+  box-shadow: none;
 }
 
 .send-button:disabled {
   background: var(--primary-disabled);
   cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
 }
 
 /* --- Responsive Adjustments --- */
 @media (max-width: 768px) {
   .chat-main {
-    padding: 0.5rem;
+    padding: 0.75rem;
+  }
+
+  .chat-header {
+    padding: 0.6rem 1rem;
+  }
+
+  /* Adjust chat title size for mobile if needed */
+  .chat-title {
+    font-size: 1.2rem;
+  }
+
+  .messages-area {
+    padding: 1rem;
   }
 
   .message {
     max-width: 90%;
   }
 
-  /* Fixed input area for mobile */
   .input-area {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    border-radius: 0;
     padding: 0.75rem 1rem;
-    box-shadow: 0 -2px 8px var(--shadow-color);
+    border-radius: 0;
+    margin-top: 0;
   }
 
   .messages-area {
