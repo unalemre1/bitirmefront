@@ -326,7 +326,7 @@ onMounted(() => {
 
 @media (min-width: 769px) {
   .chat-main.shifted-desktop {
-    margin-left: 200px;
+    margin-left: 100px;
   }
 }
 
