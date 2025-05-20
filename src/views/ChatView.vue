@@ -426,7 +426,7 @@ onMounted(() => {
 
 /* --- Input Area Styles --- */
 .input-area {
-  padding: 0.5rem 0.5rem; /* Üstte boşluk artırıldı */
+  padding: 1.5rem 1rem; /* Üstte boşluk artırıldı */
   background: var(--card-bg);
   border-radius: 12px;
   box-shadow: 0 2px 4px var(--shadow-color);
