@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { useTitle, useWindowSize } from '@vueuse/core'
-import FooterComponent from '../components/footer/FooterComponent.vue' // Assuming you still want this component for your full app
+import FooterComponent from '../components/footer/FooterComponent.vue'
 
 useTitle('AI Chat | LexAI')
 
@@ -46,7 +46,6 @@ const scrollToBottom = () => {
   }, 100)
 }
 
-// Function to toggle sidebar and potentially close it if clicking outside (on overlay)
 const toggleSidebar = () => {
   showSidebar.value = !showSidebar.value
 }
@@ -65,8 +64,8 @@ onMounted(() => {
     <aside class="chat-sidebar" :class="{ 'show-desktop': showSidebar, 'show-mobile': showSidebar }">
       <div class="sidebar-header">
         <h2>Sohbetler</h2>
-        <button class="toggle-sidebar-button" @click="toggleSidebar">
-          <i :class="showSidebar ? 'bi bi-x-lg' : 'bi bi-list'"></i>
+        <button class="close-sidebar-mobile-button" @click="closeSidebar">
+          <i class="bi bi-x-lg"></i>
         </button>
       </div>
       <div class="sidebar-content">
@@ -91,6 +90,9 @@ onMounted(() => {
 
     <main class="chat-main" :class="{ 'shifted-desktop': showSidebar }">
       <header class="chat-header">
+        <button class="menu-toggle-button" @click="toggleSidebar">
+          <i :class="showSidebar ? 'bi bi-x-lg' : 'bi bi-list'"></i>
+        </button>
         <div class="header-content">
           <h1>LexAI Chat</h1>
         </div>
@@ -146,23 +148,17 @@ onMounted(() => {
   box-shadow: 2px 0 8px var(--shadow-color);
   z-index: 1000;
   flex-shrink: 0;
-  transition: transform 0.3s ease-out, margin-left 0.3s ease-out; /* Add margin-left transition */
-  
-  /* Default: Hidden on desktop initially, overlays on mobile */
-  transform: translateX(0); /* Start at 0, use margin-left to hide/show on desktop */
-  margin-left: -280px; /* Hidden off-screen by default */
-  position: relative; /* Default to relative for desktop pushing */
+  transition: transform 0.3s ease-out, margin-left 0.3s ease-out;
+
+  /* Default for desktop: hidden off-screen, relative position for pushing */
+  margin-left: -280px;
+  position: relative;
 }
 
 /* Sidebar behavior for desktop */
 @media (min-width: 769px) {
-  .chat-sidebar {
-    margin-left: -280px; /* Hidden by default on desktop */
-    position: relative; /* Ensure it's part of the flex flow */
-  }
-
   .chat-sidebar.show-desktop {
-    margin-left: 0; /* Show by moving it into view */
+    margin-left: 0; /* Show sidebar by bringing it into view */
   }
 }
 
@@ -190,80 +186,21 @@ onMounted(() => {
   border-bottom: 1px solid var(--border-color);
 }
 
-/* New style for the toggle button inside sidebar header */
-.toggle-sidebar-button {
+/* Close button specifically for the mobile sidebar (appears inside sidebar) */
+.close-sidebar-mobile-button {
   background: none;
   border: none;
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   color: var(--text-color);
   cursor: pointer;
-  display: none; /* Hidden by default on desktop */
+  display: none; /* Hidden by default */
 }
 
-/* Show the toggle button on mobile only */
 @media (max-width: 768px) {
-  .toggle-sidebar-button {
-    display: block; /* Show the button on mobile */
+  .close-sidebar-mobile-button {
+    display: block; /* Show on mobile */
   }
 }
-/* On desktop, the menu button will implicitly appear if it's placed in chat-header as before.
-   If you want a dedicated close button on desktop sidebar, add it back to sidebar-header.
-   For Gemini-like behavior, the main content's menu button should toggle it.
-*/
-/* If you want the toggle button for desktop sidebar also, move it from chat-header here: */
-@media (min-width: 769px) {
-  .toggle-sidebar-button {
-    display: block; /* Show the button on desktop as well */
-  }
-}
-
-
-.sidebar-content {
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.new-chat-button {
-  width: 100%;
-  padding: 0.75rem;
-  background: var(--primary-color);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.conversations-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.conversation-item {
-  background: none;
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  padding: 0.75rem;
-  text-align: left;
-  color: var(--text-color);
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  cursor: pointer;
-}
-
-.conversation-item.active {
-  background: var(--primary-color);
-  color: white;
-  border-color: var(--primary-color);
-}
-
 
 /* --- Overlay Styles --- */
 .sidebar-overlay {
@@ -294,7 +231,6 @@ onMounted(() => {
   }
 }
 
-
 /* --- Main Chat Area Styles --- */
 .chat-main {
   flex: 1; /* Take remaining space */
@@ -317,7 +253,7 @@ onMounted(() => {
 
 /* On mobile, main content does not shift, it's overlaid */
 @media (max-width: 768px) {
-  .chat-main.shifted-desktop { /* This class name is ignored on mobile */
+  .chat-main.shifted-desktop {
     margin-left: 0;
   }
 }
@@ -333,9 +269,13 @@ onMounted(() => {
   box-shadow: 0 2px 4px var(--shadow-color);
 }
 
-/* Remove the old menu-button as it's now in the sidebar header */
-.menu-button {
-  display: none;
+/* The main sidebar toggle button (now in chat-header) */
+.menu-toggle-button {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--text-color);
+  cursor: pointer;
 }
 
 
