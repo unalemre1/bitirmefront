@@ -133,7 +133,7 @@ onMounted(() => {
 
 <style scoped>
 .chat-page {
-  height: 100vh;
+  height: 90vh;
   background: var(--bg-color);
   position: relative;
   display: flex;
