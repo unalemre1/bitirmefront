@@ -78,6 +78,10 @@ onMounted(() => {
             <i class="bi bi-chat-left-text"></i>
             <span>Mevcut Sohbet</span>
           </button>
+          <button class="conversation-item">
+            <i class="bi bi-chat-left-text"></i>
+            <span>Önceki Sohbet 1</span>
+          </button>
         </div>
       </div>
     </aside>
@@ -147,36 +151,36 @@ onMounted(() => {
   background: var(--card-bg);
   box-shadow: 2px 0 8px var(--shadow-color);
   z-index: 1000;
-  flex-shrink: 0; /* Prevents sidebar from shrinking if space is tight */
-  transition: transform 0.3s ease-out, margin-left 0.3s ease-out; /* Smooth transition for both properties */
+  flex-shrink: 0;
+  transition: transform 0.3s ease-out, margin-left 0.3s ease-out;
 }
 
 /* Desktop Sidebar Behavior: Pushes content */
 @media (min-width: 769px) {
   .chat-sidebar {
-    position: relative; /* Becomes part of the flex flow */
-    margin-left: -280px; /* Hidden off-screen by default */
+    position: relative;
+    margin-left: -280px;
+    transform: none;
   }
 
   .chat-sidebar.show-desktop {
-    margin-left: 0; /* Slide into view */
+    margin-left: 0;
   }
 }
 
 /* Mobile Sidebar Behavior: Overlays content */
 @media (max-width: 768px) {
   .chat-sidebar {
-    position: fixed; /* Overlays the content */
+    position: fixed;
     top: 0;
     left: 0;
     height: 100%;
-    /* On mobile, use transform to slide in/out */
-    transform: translateX(-100%); /* Hidden off-screen by default */
-    margin-left: 0; /* Ensure no residual margin from desktop rules */
+    transform: translateX(-100%);
+    margin-left: 0;
   }
 
   .chat-sidebar.show-mobile {
-    transform: translateX(0); /* Slide into view */
+    transform: translateX(0);
   }
 }
 
@@ -188,7 +192,7 @@ onMounted(() => {
   border-bottom: 1px solid var(--border-color);
 }
 
-/* Close button specifically for the mobile sidebar (appears inside sidebar) */
+/* Close button specifically for the mobile sidebar */
 .close-sidebar-mobile-button {
   background: none;
   border: none;
@@ -196,6 +200,8 @@ onMounted(() => {
   color: var(--text-color);
   cursor: pointer;
   display: none; /* Hidden by default */
+  padding: 0.5rem; /* Add padding for better click area */
+  border-radius: 50%; /* Make it circular */
 }
 
 @media (max-width: 768px) {
@@ -204,6 +210,80 @@ onMounted(() => {
   }
 }
 
+/* --- Sidebar Content Buttons --- */
+.sidebar-content {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.new-chat-button {
+  width: 100%;
+  padding: 0.75rem;
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  justify-content: center; /* Center content */
+  font-size: 1rem; /* Ensure readable font size */
+  transition: background-color 0.2s ease; /* Smooth hover effect */
+}
+
+.new-chat-button:hover {
+  background-color: var(--primary-dark-color, #0056b3); /* Darker shade on hover, define --primary-dark-color if needed */
+}
+
+.conversations-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.conversation-item {
+  background: var(--bg-color); /* Light background for items */
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 0.75rem;
+  text-align: left;
+  color: var(--text-color);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-size: 0.95rem; /* Slightly smaller font for conversation items */
+  transition: background-color 0.2s ease, border-color 0.2s ease; /* Smooth hover */
+  width: 100%; /* Ensure full width */
+  white-space: nowrap; /* Prevent text wrapping */
+  overflow: hidden; /* Hide overflow text */
+  text-overflow: ellipsis; /* Add ellipsis for overflow */
+}
+
+.conversation-item i {
+  color: var(--primary-color); /* Icon color */
+}
+
+.conversation-item:hover {
+  background: var(--hover-bg-color, #e0e0e0); /* Define --hover-bg-color or use a light grey */
+  border-color: var(--primary-color); /* Highlight border on hover */
+}
+
+.conversation-item.active {
+  background: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+}
+
+.conversation-item.active i {
+  color: white; /* Active icon color */
+}
+
+
 /* --- Overlay Styles --- */
 .sidebar-overlay {
   position: fixed;
@@ -211,14 +291,13 @@ onMounted(() => {
   left: 0;
   height: 100%;
   width: 100%;
-  background: rgba(0, 0, 0, 0.5); /* Dimming effect */
+  background: rgba(0, 0, 0, 0.5);
   opacity: 0;
   visibility: hidden;
   transition: all 0.3s ease;
   z-index: 999;
 }
 
-/* Only show overlay on mobile when sidebar is active */
 @media (max-width: 768px) {
   .sidebar-overlay.show-mobile {
     opacity: 1;
@@ -226,34 +305,31 @@ onMounted(() => {
   }
 }
 
-/* Hide overlay completely on desktop */
 @media (min-width: 769px) {
   .sidebar-overlay {
-    display: none; /* Never show overlay on desktop */
+    display: none;
   }
 }
 
 /* --- Main Chat Area Styles --- */
 .chat-main {
-  flex: 1; /* Take remaining space */
+  flex: 1;
   display: flex;
   flex-direction: column;
   padding: 1rem;
-  max-width: 100%; /* Default max-width */
+  max-width: 100%;
   overflow: hidden;
-  transition: margin-left 0.3s ease-out; /* Animate margin-left */
-  margin-left: 0; /* Default margin-left */
-  width: 100%; /* Ensure it takes full width initially */
+  transition: margin-left 0.3s ease-out;
+  margin-left: 0;
+  width: 100%;
 }
 
-/* Shift main content on desktop when sidebar is open */
 @media (min-width: 769px) {
   .chat-main.shifted-desktop {
-    margin-left: 280px; /* Push chat-main to the right by sidebar's width */
+    margin-left: 280px;
   }
 }
 
-/* On mobile, main content does not shift, it's overlaid */
 @media (max-width: 768px) {
   .chat-main.shifted-desktop {
     margin-left: 0;
@@ -271,13 +347,20 @@ onMounted(() => {
   box-shadow: 0 2px 4px var(--shadow-color);
 }
 
-/* The main sidebar toggle button (now in chat-header) */
+/* The main sidebar toggle button (in chat-header) */
 .menu-toggle-button {
   background: none;
   border: none;
-  font-size: 1.5rem;
+  font-size: 1.5rem; /* Make icon larger */
   color: var(--text-color);
   cursor: pointer;
+  padding: 0.5rem; /* Add padding for better click area */
+  border-radius: 50%; /* Make it circular */
+  transition: background-color 0.2s ease; /* Smooth hover effect */
+}
+
+.menu-toggle-button:hover {
+  background-color: var(--hover-bg-color, rgba(0, 0, 0, 0.05)); /* Light background on hover */
 }
 
 .messages-area {
@@ -399,7 +482,7 @@ onMounted(() => {
   }
 
   .messages-area {
-    padding-bottom: 100px; /* Space for the fixed input area on mobile */
+    padding-bottom: 100px;
   }
 }
 </style>
