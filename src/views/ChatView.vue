@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { useTitle } from '@vueuse/core'
+import { ref, onMounted, computed } from 'vue'
+import { useTitle, useWindowSize } from '@vueuse/core'
 import FooterComponent from '../components/footer/FooterComponent.vue'
 
 useTitle('AI Chat | LexAI')
@@ -11,15 +11,27 @@ const messages = ref<Array<{ role: 'user' | 'assistant', content: string }>>([
 const newMessage = ref('')
 const chatContainer = ref<HTMLDivElement | null>(null)
 
+// Ekran genişliğini kontrol et
+const { width } = useWindowSize()
+const isMobile = computed(() => width.value <= 768)
+
+const showSidebar = ref(!isMobile.value)
+
 const sendMessage = async () => {
   if (!newMessage.value.trim()) return
 
-  messages.value.push({ role: 'user', content: newMessage.value })
+  messages.value.push({
+    role: 'user',
+    content: newMessage.value
+  })
 
   const userMessage = newMessage.value
   newMessage.value = ''
 
-  messages.value.push({ role: 'assistant', content: '...' })
+  messages.value.push({
+    role: 'assistant',
+    content: '...'
+  })
 
   setTimeout(() => {
     messages.value[messages.value.length - 1] = {
@@ -45,10 +57,13 @@ onMounted(() => {
 
 <template>
   <div class="chat-page">
-    <!-- Sidebar -->
-    <aside class="chat-sidebar">
+    <!-- Sidebar (kalıcı masaüstü / mobilde geçici) -->
+    <aside class="chat-sidebar" :class="{ show: showSidebar, mobile: isMobile }">
       <div class="sidebar-header">
         <h2>Sohbetler</h2>
+        <button v-if="isMobile" class="close-button" @click="showSidebar = false">
+          <i class="bi bi-x-lg"></i>
+        </button>
       </div>
       <div class="sidebar-content">
         <button class="new-chat-button">
@@ -64,16 +79,25 @@ onMounted(() => {
       </div>
     </aside>
 
-    <!-- Main Chat Area -->
-    <main class="chat-main">
-      <!-- Chat Header -->
+    <!-- Overlay sadece mobilde -->
+    <div 
+      class="sidebar-overlay" 
+      v-if="isMobile"
+      :class="{ show: showSidebar }"
+      @click="showSidebar = false"
+    ></div>
+
+    <!-- Main Chat -->
+    <main class="chat-main" :class="{ 'sidebar-visible': showSidebar && !isMobile }">
       <header class="chat-header">
+        <button class="menu-button" @click="showSidebar = !showSidebar" v-if="isMobile">
+          <i class="bi bi-list"></i>
+        </button>
         <div class="header-content">
           <h1>LexAI Chat</h1>
         </div>
       </header>
 
-      <!-- Messages Area -->
       <div class="messages-area" ref="chatContainer">
         <div
           v-for="(message, index) in messages"
@@ -90,7 +114,6 @@ onMounted(() => {
         </div>
       </div>
 
-      <!-- Input Area -->
       <div class="input-area">
         <form @submit.prevent="sendMessage" class="input-form">
           <input
@@ -110,39 +133,49 @@ onMounted(() => {
 
 <style scoped>
 .chat-page {
-  height: calc(100vh - 100px);
+  height: 100vh;
   background: var(--bg-color);
   position: relative;
   display: flex;
+  overflow: hidden;
 }
 
 /* Sidebar */
 .chat-sidebar {
   width: 280px;
-  height: 100vh;
+  height: 100%;
   background: var(--card-bg);
+  transition: transform 0.3s ease;
   z-index: 1000;
-  display: flex;
-  flex-direction: column;
+  flex-shrink: 0;
   box-shadow: 2px 0 8px var(--shadow-color);
+}
+
+.chat-sidebar.mobile {
   position: fixed;
   top: 0;
   left: 0;
+  transform: translateX(-100%);
+}
+
+.chat-sidebar.mobile.show {
+  transform: translateX(0);
+}
+
+.chat-sidebar:not(.mobile) {
+  position: relative;
+  transform: translateX(0) !important;
 }
 
 .sidebar-header {
   padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   border-bottom: 1px solid var(--border-color);
 }
 
-.sidebar-header h2 {
-  margin: 0;
-  font-size: 1.25rem;
-  color: var(--text-color);
-}
-
 .sidebar-content {
-  flex: 1;
   padding: 1rem;
   display: flex;
   flex-direction: column;
@@ -157,14 +190,10 @@ onMounted(() => {
   border: none;
   border-radius: 8px;
   font-weight: 600;
+  cursor: pointer;
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  cursor: pointer;
-}
-
-.new-chat-button:hover {
-  background: var(--primary-hover);
 }
 
 .conversations-list {
@@ -174,19 +203,16 @@ onMounted(() => {
 }
 
 .conversation-item {
-  padding: 0.75rem;
+  background: none;
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  background: none;
+  padding: 0.75rem;
+  text-align: left;
   color: var(--text-color);
   display: flex;
   align-items: center;
   gap: 0.5rem;
   cursor: pointer;
-}
-
-.conversation-item:hover {
-  background: rgba(66, 184, 131, 0.1);
 }
 
 .conversation-item.active {
@@ -195,39 +221,62 @@ onMounted(() => {
   border-color: var(--primary-color);
 }
 
+.close-button {
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  color: var(--text-color);
+  cursor: pointer;
+}
+
+/* Overlay (mobilde) */
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  z-index: 999;
+}
+
+.sidebar-overlay.show {
+  opacity: 1;
+  visibility: visible;
+}
+
 /* Chat Main */
 .chat-main {
-  margin-left: 280px;
   flex: 1;
-  height: 100vh;
   display: flex;
   flex-direction: column;
   padding: 1rem;
-  box-sizing: border-box;
+  max-width: 100%;
+  overflow: hidden;
 }
 
-/* Chat Header */
 .chat-header {
   display: flex;
   align-items: center;
-  padding: 1rem;
+  gap: 1rem;
   background: var(--card-bg);
   border-radius: 12px;
+  padding: 1rem;
   margin-bottom: 1rem;
   box-shadow: 0 2px 4px var(--shadow-color);
 }
 
-.header-content {
-  flex: 1;
-}
-
-.header-content h1 {
+.menu-button {
+  background: none;
+  border: none;
   font-size: 1.5rem;
-  margin: 0;
   color: var(--text-color);
+  cursor: pointer;
 }
 
-/* Messages */
 .messages-area {
   flex: 1;
   overflow-y: auto;
@@ -237,7 +286,6 @@ onMounted(() => {
   gap: 1rem;
   background: var(--card-bg);
   border-radius: 12px;
-  margin-bottom: 1rem;
   box-shadow: 0 2px 4px var(--shadow-color);
 }
 
@@ -259,7 +307,6 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
 }
 
 .message.assistant .message-avatar {
@@ -288,7 +335,6 @@ onMounted(() => {
   color: white;
 }
 
-/* Input */
 .input-area {
   padding: 1rem;
   background: var(--card-bg);
@@ -311,12 +357,6 @@ onMounted(() => {
   font-size: 1rem;
 }
 
-.message-input:focus {
-  outline: none;
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(66, 184, 131, 0.2);
-}
-
 .send-button {
   padding: 0.75rem 1.5rem;
   background: var(--primary-color);
@@ -326,10 +366,6 @@ onMounted(() => {
   cursor: pointer;
 }
 
-.send-button:hover:not(:disabled) {
-  background: var(--primary-hover);
-}
-
 .send-button:disabled {
   background: var(--primary-disabled);
   cursor: not-allowed;
@@ -337,12 +373,7 @@ onMounted(() => {
 
 @media (max-width: 768px) {
   .chat-main {
-    margin-left: 0;
     padding: 0.5rem;
-  }
-
-  .chat-sidebar {
-    display: none;
   }
 
   .message {
