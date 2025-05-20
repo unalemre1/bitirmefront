@@ -3,17 +3,10 @@ import { ref, onMounted } from 'vue'
 import { useTitle } from '@vueuse/core'
 import FooterComponent from '../components/footer/FooterComponent.vue'
 import FormInput from '../components/form/FormInput.vue'
-import { useAuth } from '../composables/useAuth'
+import { profileApi } from '../api/profile'
+import type { UserProfile } from '../types/profile'
 
 useTitle('Profilim | LexAI')
-
-interface UserProfile {
-  name: string
-  surname: string
-  email: string
-  userType: 'lawyer' | 'user'
-  baro_sicil_no?: string
-}
 
 const profile = ref<UserProfile>({
   name: '',
@@ -32,20 +25,8 @@ const toggleEdit = () => {
 
 const fetchProfile = async () => {
   try {
-    // Simulated API call - replace with actual API call
-    const response = await new Promise<UserProfile>((resolve) => {
-      setTimeout(() => {
-        resolve({
-          name: 'John',
-          surname: 'Doe',
-          email: 'john@example.com',
-          userType: 'lawyer',
-          baro_sicil_no: '12345'
-        })
-      }, 1000)
-    })
-    
-    profile.value = response
+    const data = await profileApi.fetchProfile()
+    profile.value = data
   } catch (err) {
     console.error('Error fetching profile:', err)
     error.value = 'Profil bilgileri yüklenirken bir hata oluştu'
@@ -55,9 +36,8 @@ const fetchProfile = async () => {
 const saveProfile = async () => {
   try {
     isSaving.value = true
-    // Simulated API call - replace with actual API call
-    await new Promise(resolve => setTimeout(resolve, 1500))
-    
+    const updatedProfile = await profileApi.updateProfile(profile.value)
+    profile.value = updatedProfile
     isEditing.value = false
     error.value = null
   } catch (err) {
