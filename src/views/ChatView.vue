@@ -5,9 +5,7 @@ import FooterComponent from '../components/footer/FooterComponent.vue'
 
 useTitle('AI Chat | LexAI')
 
-const messages = ref<Array<{ role: 'user' | 'assistant', content: string }>>([
-  { role: 'assistant', content: 'Merhaba! Size nasıl yardımcı olabilirim?' }
-])
+const messages = ref<Array<{ role: 'user' | 'assistant', content: string }>>([  { role: 'assistant', content: 'Merhaba! Size nasıl yardımcı olabilirim?' }])
 const newMessage = ref('')
 const chatContainer = ref<HTMLDivElement | null>(null)
 
@@ -127,8 +125,8 @@ onMounted(() => {
 .chat-page {
   height: 90vh;
   background: var(--bg-color);
-  position: relative; /* Changed to relative for positioned sidebar */
-  display: flex; /* Flex container */
+  position: relative;
+  display: flex;
   overflow: hidden;
 }
 
@@ -136,18 +134,18 @@ onMounted(() => {
   width: 280px;
   height: 100%;
   background: var(--card-bg);
-  transition: transform 0.3s ease-out; /* Transition transform for sidebar */
+  transition: transform 0.3s ease-out;
   z-index: 1000;
   flex-shrink: 0;
   box-shadow: 2px 0 8px var(--shadow-color);
-  position: absolute; /* Position absolutely within chat-page */
+  position: absolute;
   top: 0;
   left: 0;
-  transform: translateX(-100%); /* Initially hide sidebar */
+  transform: translateX(-100%);
 }
 
 .chat-sidebar.show {
-  transform: translateX(0%); /* Show sidebar */
+  transform: translateX(0%);
 }
 
 .sidebar-header {
@@ -231,19 +229,19 @@ onMounted(() => {
 }
 
 .chat-main {
-  flex: 1; /* Allow chat-main to take remaining space */
+  flex: 1;
   display: flex;
   flex-direction: column;
   padding: 1rem;
   max-width: 100%;
   overflow: hidden;
-  margin-left: 0; /* Default margin */
+  margin-left: 0;
   width: 100%;
-  transition: margin-left 0.3s ease-out; /* Animate margin-left */
+  transition: margin-left 0.3s ease-out;
 }
 
 .chat-main.shifted {
-  margin-left: 280px; /* Shift main content when sidebar is open */
+  margin-left: 280px;
 }
 
 .chat-header {
@@ -328,6 +326,9 @@ onMounted(() => {
   background: var(--card-bg);
   border-radius: 12px;
   box-shadow: 0 2px 4px var(--shadow-color);
+  /* Added z-index for better layering */
+  position: relative; /* Needed for z-index to work */
+  z-index: 1001; /* Higher than sidebar-overlay */
 }
 
 .input-form {
@@ -372,6 +373,33 @@ onMounted(() => {
   /* On smaller screens, the sidebar should still overlay, so no margin shift for main content */
   .chat-main.shifted {
     margin-left: 0;
+  }
+
+  /* When the sidebar is open on small screens, the main content (including input) is still visible behind the overlay.
+     To ensure the input field is always interactive, we can adjust the overlay slightly
+     or ensure the input area's z-index is super high.
+     A better solution for small screens is to not cover the input area at all.
+  */
+  .sidebar-overlay.show {
+    /* Adjust height to not cover the input area */
+    height: calc(100% - var(--input-area-height, 80px)); /* You might need to define --input-area-height or calculate it dynamically */
+  }
+
+  .input-area {
+    /* On small screens, keep it at the bottom of the viewport */
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1002; /* Ensure it's above the overlay */
+    padding: 1rem; /* Keep padding */
+    border-radius: 0; /* Remove border-radius at bottom */
+    box-shadow: 0 -2px 8px var(--shadow-color); /* Shadow on top */
+  }
+
+  .messages-area {
+    /* Adjust messages-area to not be covered by fixed input-area */
+    padding-bottom: 100px; /* Approximately input-area height + padding */
   }
 }
 </style>
