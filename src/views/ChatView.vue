@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { useTitle, useWindowSize } from '@vueuse/core'
-import FooterComponent from '../components/footer/FooterComponent.vue'
+import FooterComponent from '../components/footer/FooterComponent.vue' // Assuming you still want this component for your full app
 
 useTitle('AI Chat | LexAI')
 
@@ -46,6 +46,15 @@ const scrollToBottom = () => {
   }, 100)
 }
 
+// Function to toggle sidebar and potentially close it if clicking outside (on overlay)
+const toggleSidebar = () => {
+  showSidebar.value = !showSidebar.value
+}
+
+const closeSidebar = () => {
+  showSidebar.value = false
+}
+
 onMounted(() => {
   scrollToBottom()
 })
@@ -56,8 +65,8 @@ onMounted(() => {
     <aside class="chat-sidebar" :class="{ 'show-desktop': showSidebar, 'show-mobile': showSidebar }">
       <div class="sidebar-header">
         <h2>Sohbetler</h2>
-        <button class="close-button" @click="showSidebar = false">
-          <i class="bi bi-x-lg"></i>
+        <button class="toggle-sidebar-button" @click="toggleSidebar">
+          <i :class="showSidebar ? 'bi bi-x-lg' : 'bi bi-list'"></i>
         </button>
       </div>
       <div class="sidebar-content">
@@ -77,14 +86,11 @@ onMounted(() => {
     <div
       class="sidebar-overlay"
       :class="{ 'show-mobile': showSidebar }"
-      @click="showSidebar = false"
+      @click="closeSidebar"
     ></div>
 
     <main class="chat-main" :class="{ 'shifted-desktop': showSidebar }">
       <header class="chat-header">
-        <button class="menu-button" @click="showSidebar = !showSidebar">
-          <i class="bi bi-list"></i>
-        </button>
         <div class="header-content">
           <h1>LexAI Chat</h1>
         </div>
@@ -128,7 +134,7 @@ onMounted(() => {
   height: 90vh;
   background: var(--bg-color);
   position: relative;
-  display: flex; /* Flex container */
+  display: flex;
   overflow: hidden;
 }
 
@@ -138,24 +144,25 @@ onMounted(() => {
   height: 100%;
   background: var(--card-bg);
   box-shadow: 2px 0 8px var(--shadow-color);
-  z-index: 1000; /* Higher than main content */
+  z-index: 1000;
   flex-shrink: 0;
-  transition: transform 0.3s ease-out; /* For desktop animation */
+  transition: transform 0.3s ease-out, margin-left 0.3s ease-out; /* Add margin-left transition */
   
-  /* Default: Hidden on desktop initially */
-  transform: translateX(-100%);
-  position: absolute; /* Default for mobile overlap */
+  /* Default: Hidden on desktop initially, overlays on mobile */
+  transform: translateX(0); /* Start at 0, use margin-left to hide/show on desktop */
+  margin-left: -280px; /* Hidden off-screen by default */
+  position: relative; /* Default to relative for desktop pushing */
 }
 
 /* Sidebar behavior for desktop */
 @media (min-width: 769px) {
   .chat-sidebar {
-    position: relative; /* Make it part of the flex flow on desktop */
-    transform: translateX(-100%); /* Hidden by default */
+    margin-left: -280px; /* Hidden by default on desktop */
+    position: relative; /* Ensure it's part of the flex flow */
   }
 
   .chat-sidebar.show-desktop {
-    transform: translateX(0); /* Show by sliding into view */
+    margin-left: 0; /* Show by moving it into view */
   }
 }
 
@@ -166,14 +173,14 @@ onMounted(() => {
     top: 0;
     left: 0;
     height: 100%;
-    transform: translateX(-100%);
+    margin-left: 0; /* Override desktop margin-left */
+    transform: translateX(-100%); /* Hidden off-screen on mobile */
   }
 
   .chat-sidebar.show-mobile {
-    transform: translateX(0);
+    transform: translateX(0); /* Show by sliding into view on mobile */
   }
 }
-
 
 .sidebar-header {
   padding: 1rem;
@@ -182,6 +189,34 @@ onMounted(() => {
   align-items: center;
   border-bottom: 1px solid var(--border-color);
 }
+
+/* New style for the toggle button inside sidebar header */
+.toggle-sidebar-button {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--text-color);
+  cursor: pointer;
+  display: none; /* Hidden by default on desktop */
+}
+
+/* Show the toggle button on mobile only */
+@media (max-width: 768px) {
+  .toggle-sidebar-button {
+    display: block; /* Show the button on mobile */
+  }
+}
+/* On desktop, the menu button will implicitly appear if it's placed in chat-header as before.
+   If you want a dedicated close button on desktop sidebar, add it back to sidebar-header.
+   For Gemini-like behavior, the main content's menu button should toggle it.
+*/
+/* If you want the toggle button for desktop sidebar also, move it from chat-header here: */
+@media (min-width: 769px) {
+  .toggle-sidebar-button {
+    display: block; /* Show the button on desktop as well */
+  }
+}
+
 
 .sidebar-content {
   padding: 1rem;
@@ -229,12 +264,6 @@ onMounted(() => {
   border-color: var(--primary-color);
 }
 
-.close-button {
-  background: none;
-  border: none;
-  font-size: 1.25rem;
-  color: var(--text-color);
-}
 
 /* --- Overlay Styles --- */
 .sidebar-overlay {
@@ -272,7 +301,7 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   padding: 1rem;
-  max-width: 100%;
+  max-width: 100%; /* Default max-width */
   overflow: hidden;
   transition: margin-left 0.3s ease-out; /* Animate margin-left */
   margin-left: 0; /* Default margin-left */
@@ -282,9 +311,7 @@ onMounted(() => {
 /* Shift main content on desktop when sidebar is open */
 @media (min-width: 769px) {
   .chat-main.shifted-desktop {
-    margin-left: 0; /* Reset margin-left because sidebar is now part of flex flow */
-    /* If you want chat-main to shrink, you'd adjust flex-grow or max-width here */
-    /* Example: max-width: calc(100% - 280px); */
+    margin-left: 280px; /* Push chat-main to the right by sidebar's width */
   }
 }
 
@@ -306,13 +333,11 @@ onMounted(() => {
   box-shadow: 0 2px 4px var(--shadow-color);
 }
 
+/* Remove the old menu-button as it's now in the sidebar header */
 .menu-button {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  color: var(--text-color);
-  cursor: pointer;
+  display: none;
 }
+
 
 .messages-area {
   flex: 1;
@@ -378,8 +403,8 @@ onMounted(() => {
   background: var(--card-bg);
   border-radius: 12px;
   box-shadow: 0 2px 4px var(--shadow-color);
-  position: relative; /* Needed for z-index */
-  z-index: 1002; /* Ensure it's above everything else */
+  position: relative;
+  z-index: 1002;
 }
 
 .input-form {
@@ -428,7 +453,7 @@ onMounted(() => {
     left: 0;
     width: 100%;
     border-radius: 0;
-    padding: 0.75rem 1rem; /* Adjust padding for mobile */
+    padding: 0.75rem 1rem;
     box-shadow: 0 -2px 8px var(--shadow-color);
   }
 
