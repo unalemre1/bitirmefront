@@ -147,34 +147,36 @@ onMounted(() => {
   background: var(--card-bg);
   box-shadow: 2px 0 8px var(--shadow-color);
   z-index: 1000;
-  flex-shrink: 0;
-  transition: transform 0.3s ease-out, margin-left 0.3s ease-out;
-
-  /* Default for desktop: hidden off-screen, relative position for pushing */
-  margin-left: -280px;
-  position: relative;
+  flex-shrink: 0; /* Prevents sidebar from shrinking if space is tight */
+  transition: transform 0.3s ease-out, margin-left 0.3s ease-out; /* Smooth transition for both properties */
 }
 
-/* Sidebar behavior for desktop */
+/* Desktop Sidebar Behavior: Pushes content */
 @media (min-width: 769px) {
+  .chat-sidebar {
+    position: relative; /* Becomes part of the flex flow */
+    margin-left: -280px; /* Hidden off-screen by default */
+  }
+
   .chat-sidebar.show-desktop {
-    margin-left: 0; /* Show sidebar by bringing it into view */
+    margin-left: 0; /* Slide into view */
   }
 }
 
-/* Sidebar behavior for mobile (still overlays) */
+/* Mobile Sidebar Behavior: Overlays content */
 @media (max-width: 768px) {
   .chat-sidebar {
-    position: fixed; /* Keep it fixed on mobile */
+    position: fixed; /* Overlays the content */
     top: 0;
     left: 0;
     height: 100%;
-    margin-left: 0; /* Override desktop margin-left */
-    transform: translateX(-100%); /* Hidden off-screen on mobile */
+    /* On mobile, use transform to slide in/out */
+    transform: translateX(-100%); /* Hidden off-screen by default */
+    margin-left: 0; /* Ensure no residual margin from desktop rules */
   }
 
   .chat-sidebar.show-mobile {
-    transform: translateX(0); /* Show by sliding into view on mobile */
+    transform: translateX(0); /* Slide into view */
   }
 }
 
@@ -277,7 +279,6 @@ onMounted(() => {
   color: var(--text-color);
   cursor: pointer;
 }
-
 
 .messages-area {
   flex: 1;
