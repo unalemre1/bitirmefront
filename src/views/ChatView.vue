@@ -53,7 +53,6 @@ onMounted(() => {
 
 <template>
   <div class="chat-page">
-    <!-- Sidebar -->
     <aside class="chat-sidebar" :class="{ show: showSidebar }">
       <div class="sidebar-header">
         <h2>Sohbetler</h2>
@@ -75,15 +74,13 @@ onMounted(() => {
       </div>
     </aside>
 
-    <!-- Overlay -->
-    <div 
-      class="sidebar-overlay" 
+    <div
+      class="sidebar-overlay"
       :class="{ show: showSidebar }"
       @click="showSidebar = false"
     ></div>
 
-    <!-- Main Chat -->
-    <main class="chat-main">
+    <main class="chat-main" :class="{ shifted: showSidebar }">
       <header class="chat-header">
         <button class="menu-button" @click="showSidebar = !showSidebar">
           <i class="bi bi-list"></i>
@@ -130,8 +127,8 @@ onMounted(() => {
 .chat-page {
   height: 90vh;
   background: var(--bg-color);
-  position: relative;
-  display: flex;
+  position: relative; /* Changed to relative for positioned sidebar */
+  display: flex; /* Flex container */
   overflow: hidden;
 }
 
@@ -139,18 +136,18 @@ onMounted(() => {
   width: 280px;
   height: 100%;
   background: var(--card-bg);
-  transition: transform 0.3s ease;
+  transition: transform 0.3s ease-out; /* Transition transform for sidebar */
   z-index: 1000;
   flex-shrink: 0;
   box-shadow: 2px 0 8px var(--shadow-color);
-  position: fixed;
+  position: absolute; /* Position absolutely within chat-page */
   top: 0;
   left: 0;
-  transform: translateX(-100%);
+  transform: translateX(-100%); /* Initially hide sidebar */
 }
 
 .chat-sidebar.show {
-  transform: translateX(0);
+  transform: translateX(0%); /* Show sidebar */
 }
 
 .sidebar-header {
@@ -234,14 +231,19 @@ onMounted(() => {
 }
 
 .chat-main {
-  flex: 1;
+  flex: 1; /* Allow chat-main to take remaining space */
   display: flex;
   flex-direction: column;
   padding: 1rem;
   max-width: 100%;
   overflow: hidden;
-  margin-left: 0;
+  margin-left: 0; /* Default margin */
   width: 100%;
+  transition: margin-left 0.3s ease-out; /* Animate margin-left */
+}
+
+.chat-main.shifted {
+  margin-left: 280px; /* Shift main content when sidebar is open */
 }
 
 .chat-header {
@@ -357,6 +359,7 @@ onMounted(() => {
   cursor: not-allowed;
 }
 
+/* Media queries for responsiveness */
 @media (max-width: 768px) {
   .chat-main {
     padding: 0.5rem;
@@ -364,6 +367,11 @@ onMounted(() => {
 
   .message {
     max-width: 90%;
+  }
+
+  /* On smaller screens, the sidebar should still overlay, so no margin shift for main content */
+  .chat-main.shifted {
+    margin-left: 0;
   }
 }
 </style>
