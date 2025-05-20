@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useTitle } from '@vueuse/core'
+import axios from 'axios' // Axios'u import ediyoruz
 
 useTitle('AI Chat | LexAI')
 
@@ -12,29 +13,51 @@ const chatContainer = ref<HTMLDivElement | null>(null)
 
 const showSidebar = ref(false)
 
+// Backend API URL'ini buraya tanımlayın
+// Kendi backend'inizin adresine göre bu URL'i değiştirmeniz gerekecek.
+// Örneğin: 'http://localhost:3000/api/chat' veya 'https://your-backend-api.com/chat'
+const API_URL = 'http://localhost:3000/api/chat'; // Burayı kendi backend URL'inizle değiştirin!
+
 const sendMessage = async () => {
   if (!newMessage.value.trim()) return
 
+  const userMessageContent = newMessage.value
   messages.value.push({
     role: 'user',
-    content: newMessage.value
+    content: userMessageContent
   })
 
-  const userMessage = newMessage.value
   newMessage.value = ''
 
+  // Yapay zeka yanıtı beklenirken geçici bir mesaj ekleyelim
   messages.value.push({
     role: 'assistant',
-    content: '...'
+    content: 'Yapay zeka yanıtı bekleniyor...'
   })
+  scrollToBottom()
 
-  setTimeout(() => {
+  try {
+    // Backend'e POST isteği gönderiyoruz
+    const response = await axios.post(API_URL, {
+      message: userMessageContent // Backend'e göndereceğimiz mesaj
+    });
+
+    // Son mesajı (bekleme mesajını) backend'den gelen yanıtla güncelliyoruz
     messages.value[messages.value.length - 1] = {
       role: 'assistant',
-      content: `Mesajınızı aldım: "${userMessage}". Bu bir örnek yanıttır.`
-    }
-    scrollToBottom()
-  }, 1000)
+      content: response.data.reply || 'Yanıt alınamadı.' // Backend'den gelen 'reply' alanını kullanıyoruz
+    };
+
+  } catch (error) {
+    console.error('Mesaj gönderirken hata oluştu:', error);
+    // Hata durumunda kullanıcıya bilgi verelim
+    messages.value[messages.value.length - 1] = {
+      role: 'assistant',
+      content: 'Üzgünüm, bir hata oluştu. Lütfen tekrar deneyin.'
+    };
+  } finally {
+    scrollToBottom();
+  }
 }
 
 const scrollToBottom = () => {
