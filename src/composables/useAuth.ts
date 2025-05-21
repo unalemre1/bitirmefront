@@ -15,7 +15,7 @@ export function useAuth() {
       console.log('Login attempt with:', credentials.email);
       isLoading.value = true;
       error.value = null;
-      
+
       // Check for test credentials
       if (credentials.email === 'test@test.com' && credentials.password === 'test') {
         console.log('Test login triggered');
@@ -24,13 +24,22 @@ export function useAuth() {
         router.push('/chat');
         return;
       }
-      
+
       const response = await authApi.login(credentials);
       console.log('Login successful, received token');
-      
-      localStorage.setItem('token', response.token);
-      isAuthenticated.value = true;
-      router.push('/chat');
+
+      // BURASI GÜNCELLENDİ: response.access_token kullanılıyor
+      if (response.access_token) {
+        localStorage.setItem('token', response.access_token);
+        isAuthenticated.value = true;
+        router.push('/chat');
+      } else {
+        // Eğer access_token gelmezse hata fırlat veya uyar
+        console.warn('Login successful but no access_token received.');
+        error.value = 'Giriş başarılı ancak oturum bilgisi alınamadı.';
+        isAuthenticated.value = false; // Oturum açılmış sayma
+      }
+
     } catch (err) {
       console.error('Login error:', err);
       if (err instanceof Error) {
@@ -49,10 +58,10 @@ export function useAuth() {
       console.log('Signup attempt for:', credentials.email);
       isLoading.value = true;
       error.value = null;
-      
+
       await authApi.signup(credentials);
       console.log('Signup successful');
-      
+
       router.push('/login');
     } catch (err) {
       console.error('Signup error:', err);
