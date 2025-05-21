@@ -1,6 +1,6 @@
 import axios from '../config/axios';
 import { handleApiError } from '../utils/errorHandler';
-import type { UserProfile } from '../types/profile';
+import type { UserProfile } from '../types/auth';
 
 export const profileApi = {
   async fetchProfile(): Promise<UserProfile> {
