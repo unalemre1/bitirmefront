@@ -2,6 +2,28 @@ export interface LoginCredentials {
   email: string;
   password: string;
 }
+export interface SignupCredentials {
+  email: string;
+  name: string;
+  surname: string;
+  password: string;
+  password_confirm: string;
+  userType: 'user' | 'lawyer';
+  baro_sicil_no?: string;
+  idCardPhoto?: File;
+}
+
+export interface LoginCredentials {
+  email: string;
+  password: string;
+}
+
+export interface AuthResponse {
+  access_token: string;
+  token_type: string;
+  user: string;
+}
+
 
 export interface BaseSignupCredentials {
   name: string;
@@ -22,30 +44,9 @@ export interface UserSignupCredentials extends BaseSignupCredentials {
   userType: 'user';
 }
 
-export type SignupCredentials = LawyerSignupCredentials | UserSignupCredentials;
 
-export interface AuthResponse {
-  token: string;
-  user: {
-    id: string;
-    name: string;
-    surname: string;
-    email: string;
-    userType: 'lawyer' | 'user';
-    baro_sicil_no?: string;
-    idCardPhotoUrl?: string;
-  };
-}
 
 export interface ErrorResponse {
   message: string;
   errors?: Record<string, string[]>;
-}
-
-export interface UserProfile {
-  name: string;
-  surname: string;
-  email: string;
-  userType: 'lawyer' | 'user';
-  baro_sicil_no?: string;
 }
