@@ -5,7 +5,7 @@ import { handleApiError } from '../utils/errorHandler';
 export const authApi = {
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
     try {
-      console.log('Making login API request');
+      console.log('🔐 Making login API request');
 
       const formData = new FormData();
       formData.append('email', credentials.email);
@@ -35,7 +35,7 @@ export const authApi = {
 
   async signup(credentials: SignupCredentials): Promise<AuthResponse> {
     try {
-      console.log('Making signup API request');
+      console.log('📝 Making signup API request');
 
       const formData = new FormData();
       formData.append('name', credentials.name);
@@ -68,7 +68,7 @@ export const authApi = {
 
   async logout(): Promise<void> {
     try {
-      console.log('Making logout API request');
+      console.log('🚪 Making logout API request');
       await axios.post('/auth/logout');
       console.log('Logout API response received ✅');
 
@@ -82,23 +82,22 @@ export const authApi = {
   },
 
   async verifyToken(): Promise<boolean> {
-  try {
-    console.log('Verifying token...');
+    try {
+      console.log('🔍 Verifying token...');
 
-    const response = await axios.get('/auth/verify');
-    console.log('Token verification successful ✅');
-    console.log('Server response:', response.data);
+      const response = await axios.get('/auth/verify');
+      console.log('Token verification successful ✅');
+      console.log('Server response:', response.data);
 
-    // Eğer sunucu "doğrulama başarılı" bilgisi dönüyorsa kontrol et:
-    if (response.status === 200) {
-      return true;
+      // Eğer sunucu "doğrulama başarılı" bilgisi dönüyorsa kontrol et:
+      if (response.status === 200) {
+        return true;
+      }
+
+      return false;
+    } catch (error) {
+      console.error('Token verification failed ❌:', error);
+      return false;
     }
-
-    return false;
-  } catch (error) {
-    console.error('Token verification failed ❌:', error);
-    return false;
-  }
-}
-
+  },
 };
