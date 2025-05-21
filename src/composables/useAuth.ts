@@ -3,6 +3,8 @@ import { useRouter } from 'vue-router';
 import type { LoginCredentials, SignupCredentials } from '../types/auth';
 import { authApi } from '../api/auth';
 
+export const isAuthenticated = ref(false); // 🌍 GLOBAL STATE — Dışarı alındı
+
 export function useAuth() {
   const router = useRouter();
   const isLoading = ref(false);
@@ -16,7 +18,9 @@ export function useAuth() {
       
       // Check for test credentials
       if (credentials.email === 'test@test.com' && credentials.password === 'test') {
+        console.log('Test login triggered');
         localStorage.setItem('token', 'test-token');
+        isAuthenticated.value = true;
         router.push('/chat');
         return;
       }
@@ -25,6 +29,7 @@ export function useAuth() {
       console.log('Login successful, received token');
       
       localStorage.setItem('token', response.token);
+      isAuthenticated.value = true;
       router.push('/chat');
     } catch (err) {
       console.error('Login error:', err);
@@ -67,6 +72,7 @@ export function useAuth() {
       console.log('Logout attempt');
       await authApi.logout();
       localStorage.removeItem('token');
+      isAuthenticated.value = false;
       router.push('/login');
       console.log('Logout successful');
     } catch (err) {
@@ -85,6 +91,7 @@ export function useAuth() {
         return true;
       }
       const isValid = await authApi.verifyToken();
+      isAuthenticated.value = isValid;
       console.log('Token verification successful');
       return isValid;
     } catch (error) {
@@ -99,6 +106,7 @@ export function useAuth() {
     logout,
     verifyToken,
     isLoading,
-    error
+    error,
+    isAuthenticated,
   };
 }
