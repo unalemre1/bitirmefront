@@ -59,6 +59,7 @@ const handleSubmit = async () => {
     surname: formData.value.surname,
     email: formData.value.email,
     password: formData.value.password,
+    password_confirm: formData.value.password_confirm,
     userType: userType.value
   }
 
