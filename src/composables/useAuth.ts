@@ -3,7 +3,7 @@ import { useRouter } from 'vue-router';
 import type { LoginCredentials, SignupCredentials } from '../types/auth';
 import { authApi } from '../api/auth';
 
-export const isAuthenticated = ref(false); // 🌍 GLOBAL STATE — Dışarı alındı
+export const isAuthenticated = ref(false); // 🌍 Global auth state
 
 export function useAuth() {
   const router = useRouter();
@@ -12,31 +12,30 @@ export function useAuth() {
 
   const login = async (credentials: LoginCredentials) => {
     try {
-      console.log('Login attempt with:', credentials.email);
+      console.log('🔐 Login attempt:', credentials.email);
       isLoading.value = true;
       error.value = null;
-      
-      // Check for test credentials
+
+      // Test credentials shortcut
       if (credentials.email === 'test@test.com' && credentials.password === 'test') {
-        console.log('Test login triggered');
-        localStorage.setItem('token', 'test-token');
+        localStorage.setItem('access_token', 'test-token');
         isAuthenticated.value = true;
         router.push('/chat');
         return;
       }
-      
+
       const response = await authApi.login(credentials);
-      console.log('Login successful, received token');
-      
-      localStorage.setItem('token', response.token);
+
+      // Save token consistently as 'access_token'
+      localStorage.setItem('access_token', response.access_token);
       isAuthenticated.value = true;
       router.push('/chat');
     } catch (err) {
-      console.error('Login error:', err);
+      console.error('❌ Login error:', err);
       if (err instanceof Error) {
         error.value = err.message;
       } else {
-        error.value = 'Giriş yapılırken bir hata oluştu';
+        error.value = 'Giriş sırasında bir hata oluştu.';
       }
       throw err;
     } finally {
@@ -46,20 +45,23 @@ export function useAuth() {
 
   const signup = async (credentials: SignupCredentials) => {
     try {
-      console.log('Signup attempt for:', credentials.email);
+      console.log('📝 Signup attempt:', credentials.email);
       isLoading.value = true;
       error.value = null;
-      
+
       await authApi.signup(credentials);
-      console.log('Signup successful');
-      
+      console.log('✅ Signup successful');
+
+      // Otomatik login yapmak istersen aşağıyı aktif et:
+      // await login({ email: credentials.email, password: credentials.password });
+
       router.push('/login');
     } catch (err) {
-      console.error('Signup error:', err);
+      console.error('❌ Signup error:', err);
       if (err instanceof Error) {
         error.value = err.message;
       } else {
-        error.value = 'Kayıt olurken bir hata oluştu';
+        error.value = 'Kayıt sırasında bir hata oluştu.';
       }
       throw err;
     } finally {
@@ -69,33 +71,30 @@ export function useAuth() {
 
   const logout = async () => {
     try {
-      console.log('Logout attempt');
+      console.log('🚪 Logging out');
       await authApi.logout();
-      localStorage.removeItem('token');
+      localStorage.removeItem('access_token');
       isAuthenticated.value = false;
       router.push('/login');
-      console.log('Logout successful');
+      console.log('✅ Logout successful');
     } catch (err) {
-      console.error('Logout error:', err);
+      console.error('❌ Logout error:', err);
     }
   };
 
   const verifyToken = async () => {
     try {
-      console.log('Verifying token');
-      const token = localStorage.getItem('token');
-      if (!token) {
-        return false;
-      }
-      if (token === 'test-token') {
-        return true;
-      }
+      console.log('🔎 Verifying token');
+      const token = localStorage.getItem('access_token');
+      if (!token) return false;
+
+      if (token === 'test-token') return true;
+
       const isValid = await authApi.verifyToken();
       isAuthenticated.value = isValid;
-      console.log('Token verification successful');
       return isValid;
-    } catch (error) {
-      console.error('Token verification failed:', error);
+    } catch (err) {
+      console.error('❌ Token verification failed:', err);
       return false;
     }
   };
