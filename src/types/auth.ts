@@ -41,3 +41,11 @@ export interface ErrorResponse {
   message: string;
   errors?: Record<string, string[]>;
 }
+
+export interface UserProfile {
+  name: string;
+  surname: string;
+  email: string;
+  userType: 'lawyer' | 'user';
+  baro_sicil_no?: string;
+}
