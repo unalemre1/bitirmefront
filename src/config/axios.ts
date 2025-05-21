@@ -1,4 +1,5 @@
-import axios, { AxiosError } from 'axios';
+// axios.ts
+import axios from 'axios';
 import config from './env';
 
 // Create axios instance
@@ -8,15 +9,13 @@ const axiosInstance = axios.create({
   headers: {
     'Accept': 'application/json',
   },
-  // Add withCredentials for CORS requests if needed
-  withCredentials: true,
 });
 
 // Request interceptor
 axiosInstance.interceptors.request.use(
   (config) => {
     // Get token from local storage
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('access_token'); // 🔄 burayı güncelledik
     
     // Add token to headers if it exists
     if (token) {
@@ -33,17 +32,7 @@ axiosInstance.interceptors.request.use(
 // Response interceptor
 axiosInstance.interceptors.response.use(
   (response) => response,
-  (error: AxiosError) => {
-    // Handle network errors
-    if (!error.response) {
-      console.error('Network Error:', {
-        message: error.message,
-        code: error.code,
-        config: error.config
-      });
-      return Promise.reject(new Error('Unable to connect to the server. Please check your internet connection and try again.'));
-    }
-    
+  (error) => {
     // Handle 422 errors specifically
     if (error.response?.status === 422) {
       console.error('Validation Error:', error.response.data);
@@ -53,7 +42,7 @@ axiosInstance.interceptors.response.use(
     
     // Handle unauthorized access
     if (error.response?.status === 401) {
-      localStorage.removeItem('token');
+      localStorage.removeItem('access_token'); // 🔄 burayı da güncelledik
       window.location.href = '/login';
     }
     
