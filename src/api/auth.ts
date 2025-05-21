@@ -44,6 +44,13 @@ export const authApi = {
       formData.append('password', credentials.password);
       formData.append('password_confirm', credentials.password_confirm); // 👈 Şifre onayı
 
+      if (credentials.userType === 'lawyer') {
+        if (credentials.baro_sicil_no)
+          formData.append('baro_sicil_no', credentials.baro_sicil_no);
+        if (credentials.idCardPhoto)
+          formData.append('photo', credentials.idCardPhoto);
+      }
+      
       const endpoint = credentials.userType === 'lawyer'
         ? '/auth/signup'
         : '/person/signup';
