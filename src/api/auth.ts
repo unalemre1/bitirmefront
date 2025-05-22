@@ -43,12 +43,13 @@ export const authApi = {
       formData.append('email', credentials.email);
       formData.append('password', credentials.password);
       formData.append('password_confirm', credentials.password_confirm); // 👈 Şifre onayı
+      formData.append('user_type', credentials.userType); // 👈 Eksikse hata olabilir
 
       if (credentials.userType === 'lawyer') {
         if (credentials.baro_sicil_no)
           formData.append('baro_sicil_no', credentials.baro_sicil_no);
         if (credentials.idCardPhoto)
-          formData.append('photo', credentials.idCardPhoto);
+          formData.append('id_card_photo', credentials.idCardPhoto); // 👈 'photo' yerine bu
       }
       
       const endpoint = credentials.userType === 'lawyer'
