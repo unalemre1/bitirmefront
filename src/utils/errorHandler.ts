@@ -17,32 +17,25 @@ export function handleApiError(error: unknown): never {
   if (axios.isAxiosError(error)) {
     const axiosError = error as AxiosError<ErrorResponse>;
     
-    // Handle 400 Bad Request errors
-    if (axiosError.response?.status === 400) {
-      const message = axiosError.response.data?.message || 'Invalid request data';
-      throw new ApiError(message, 400);
-    }
-
-    // Handle 422 Validation errors
+    // Handle 422 errors specifically
     if (axiosError.response?.status === 422) {
-      const validationErrors = axiosError.response.data?.errors;
+      const validationErrors = axiosError.response.data.detail;
       let errorMessage = 'Validation error: ';
       
-      if (validationErrors) {
-        errorMessage += Object.entries(validationErrors)
-          .map(([field, errors]) => `${field}: ${errors.join(', ')}`)
-          .join('; ');
+      if (Array.isArray(validationErrors)) {
+        errorMessage += validationErrors.map(err => err.msg).join(', ');
       } else {
         errorMessage += 'Please check your input';
       }
       
-      throw new ApiError(errorMessage, 422, validationErrors);
+      throw new ApiError(errorMessage, 422);
     }
     
-    // Handle other errors
     const message = axiosError.response?.data?.message || 'An error occurred';
     const statusCode = axiosError.response?.status;
-    throw new ApiError(message, statusCode);
+    const errors = axiosError.response?.data?.errors;
+
+    throw new ApiError(message, statusCode, errors);
   }
 
   throw new ApiError('An unexpected error occurred');

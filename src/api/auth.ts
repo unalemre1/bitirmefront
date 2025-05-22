@@ -15,6 +15,7 @@ export const authApi = {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
 
+      // 🔐 Login sonrası token'ı localStorage'a kaydet
       if (data.access_token) {
         localStorage.setItem('access_token', data.access_token);
         console.log('✅ access_token saved to localStorage');
@@ -23,6 +24,8 @@ export const authApi = {
       }
 
       console.log('Login API response received ✅');
+      console.log('🔐 access_token:', data.access_token); // 👈 TOKEN LOGU
+
       return data;
     } catch (error) {
       console.error('Login API error:', error);
@@ -39,21 +42,22 @@ export const authApi = {
       formData.append('surname', credentials.surname);
       formData.append('email', credentials.email);
       formData.append('password', credentials.password);
-      formData.append('password_confirm', credentials.password);
-      formData.append('user_type', credentials.userType);
+      formData.append('password_confirm', credentials.password_confirm); // 👈 Şifre onayı
+      formData.append('user_type', credentials.userType); // 👈 Eksikse hata olabilir
 
-      // Only append lawyer-specific fields if the user is a lawyer
-      if (credentials.userType === 'lawyer' && credentials.baro_sicil_no) {
-        formData.append('baro_sicil_no', credentials.baro_sicil_no);
-        if (credentials.idCardPhoto) {
-          formData.append('id_card_photo', credentials.idCardPhoto);
-        }
+      if (credentials.userType === 'lawyer') {
+        if (credentials.baro_sicil_no)
+          formData.append('baro_sicil_no', credentials.baro_sicil_no);
+        if (credentials.idCardPhoto)
+          formData.append('id_card_photo', credentials.idCardPhoto); // 👈 'photo' yerine bu
       }
+      
+      const endpoint = credentials.userType === 'lawyer'
+        ? '/auth/signup'
+        : '/person/signup';
 
-      const endpoint = credentials.userType === 'lawyer' ? '/auth/signup' : '/person/signup';
-
-      // Debug: Log form data
-      console.log('Form data contents:');
+      // 🧪 Debug: FormData içeriği
+      console.log('🧪 Giden form verisi:');
       for (const [key, value] of formData.entries()) {
         console.log(`${key}:`, value);
       }
@@ -62,7 +66,7 @@ export const authApi = {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
 
-      console.log('Signup API response:', data);
+      console.log('Signup API response received ✅');
       return data;
     } catch (error) {
       console.error('Signup API error:', error);
@@ -74,8 +78,11 @@ export const authApi = {
     try {
       console.log('🚪 Making logout API request');
       await axios.post('/auth/logout');
+      console.log('Logout API response received ✅');
+
+      // 🔓 Token'ı sil
       localStorage.removeItem('access_token');
-      console.log('Logout successful ✅');
+      console.log('🔓 access_token removed from localStorage');
     } catch (error) {
       console.error('Logout API error:', error);
       throw handleApiError(error);
@@ -85,10 +92,19 @@ export const authApi = {
   async verifyToken(): Promise<boolean> {
     try {
       console.log('🔍 Verifying token...');
+
       const response = await axios.get('/auth/verify');
-      return response.status === 200;
+      console.log('Token verification successful ✅');
+      console.log('Server response:', response.data);
+
+      // Eğer sunucu "doğrulama başarılı" bilgisi dönüyorsa kontrol et:
+      if (response.status === 200) {
+        return true;
+      }
+
+      return false;
     } catch (error) {
-      console.error('Token verification failed:', error);
+      console.error('Token verification failed ❌:', error);
       return false;
     }
   },
