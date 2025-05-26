@@ -157,15 +157,21 @@ const navigateToSignup = () => router.push('/signup')
 .hero-buttons {
   display: flex;
   gap: 1rem;
-  justify-content: center;
-  flex-wrap: wrap;
+  justify-content: center; /* Ortalar */
+  flex-wrap: wrap; /* Dikey sarmaya izin verir */
+  max-width: 100%; /* Ekran genişliğini aşmasını engeller */
+  word-wrap: break-word; /* Metnin kırılmasını sağlar */
+  box-sizing: border-box; /* Padding ve border dahil genişlik */
 }
 
 .hero-btn {
-  padding: 0.75rem 2rem;
-  font-size: 1.1rem;
+  flex: 1 1 auto; /* Butonlar esnek boyutlanır */
+  min-width: 140px; /* Butonun çok daralmasını engeller */
+  max-width: 200px; /* Butonun çok genişlemesini engeller */
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
   font-weight: 600;
-  text-decoration: none;
+  text-align: center; /* Buton metnini ortalar */
 }
 
 .btn-outline {
