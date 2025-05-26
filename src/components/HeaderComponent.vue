@@ -56,17 +56,17 @@ watch(() => route.path, async () => {
         <LoginButton v-else />
       </nav>
 
-      <!-- Mobil hamburger -->
-      <button class="hamburger" @click="menuOpen = !menuOpen">
-        ☰
-      </button>
+      <!-- Tema butonu + Hamburger -->
+      <div class="mobile-actions">
+        <ThemeToggle :is-dark-mode="isDarkMode" @toggle="toggleTheme" />
+        <button class="hamburger" @click="menuOpen = !menuOpen">☰</button>
+      </div>
     </div>
 
     <!-- Mobil menü -->
     <nav class="mobile-menu" v-if="menuOpen">
       <AboutButton />
       <router-link to="/subscription" class="subscription-link">Abonelik</router-link>
-      <ThemeToggle :is-dark-mode="isDarkMode" @toggle="toggleTheme" />
       <ProfileButton v-if="isAuthenticated" />
       <LogoutButton v-if="isAuthenticated" />
       <LoginButton v-else />
@@ -133,6 +133,12 @@ watch(() => route.path, async () => {
   padding: 1rem;
 }
 
+.mobile-actions {
+  display: none;
+  align-items: center;
+  gap: 0.75rem;
+}
+
 :global(body.dark-mode) {
   --header-bg: #1a1a1a;
   --header-text: #ffffff;
@@ -153,8 +159,8 @@ watch(() => route.path, async () => {
     display: none;
   }
 
-  .hamburger {
-    display: block;
+  .mobile-actions {
+    display: flex;
   }
 
   .mobile-menu {
