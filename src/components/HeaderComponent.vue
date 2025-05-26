@@ -123,7 +123,7 @@ watch(() => route.path, async () => {
   border: none;
   font-size: 1.8rem;
   cursor: pointer;
-  color: white;
+  color: var(--hamburger-color); /* 🌟 Tema bazlı renk */
 }
 
 .mobile-menu {
@@ -143,12 +143,15 @@ watch(() => route.path, async () => {
 :global(body.dark-mode) {
   --header-bg: #1a1a1a;
   --header-text: #ffffff;
+  --hamburger-color: #ffffff; /* 🌟 Koyu tema için beyaz */
 }
 
 :global(body:not(.dark-mode)) {
   --header-bg: #ffffff;
   --header-text: #213547;
+  --hamburger-color: #000000; /* 🌟 Açık tema için siyah */
 }
+
 
 /* 🌟 Mobil düzenleme */
 @media (max-width: 768px) {
