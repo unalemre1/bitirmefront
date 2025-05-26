@@ -487,29 +487,87 @@ onMounted(() => {
   cursor: not-allowed;
 }
 
-/* --- Responsive Adjustments --- */
 @media (max-width: 768px) {
-  .chat-main {
-    padding: 0.5rem;
+  /* Sidebar overlay geçişi daha yumuşak */
+  .sidebar-overlay {
+    transition: opacity 0.4s ease, visibility 0.4s ease;
   }
 
-  .message {
-    max-width: 90%;
+  /* Sidebar mobilde üstte sabit, tam ekran yükseklik */
+  .chat-sidebar {
+    top: 0;
+    height: 100vh;
+    box-shadow: 2px 0 12px rgba(0,0,0,0.3);
+    z-index: 1100;
   }
 
-  /* Fixed input area for mobile */
-  .input-area {
+  /* Header sabit ve önde */
+  .chat-header {
     position: fixed;
-    bottom: 0;
+    top: 0;
     left: 0;
-    width: 100%;
-    border-radius: 0;
-    padding: 1rem 1rem; /* Üst boşluk biraz artırıldı */
-    box-shadow: 0 -2px 8px var(--shadow-color);
+    right: 0;
+    z-index: 1101;
+    background: var(--card-bg);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    padding: 1rem 1.5rem;
   }
 
+  /* Mesajlar alanı header ve input alanına göre yüksekliği ayarla */
   .messages-area {
-    padding-bottom: 110px;
+    padding-top: 70px; /* header yüksekliği */
+    padding-bottom: 130px; /* input alanı + boşluk */
+  }
+
+  /* Mesaj balonlarının max genişliği ve iç boşluk artırıldı */
+  .message {
+    max-width: 95%;
+    padding: 0 0.5rem;
+  }
+  
+  .message-bubble {
+    padding: 1.1rem 1.3rem;
+    font-size: 1.05rem;
+  }
+
+  /* Mesaj gönder butonu biraz daha büyük */
+  .send-button {
+    padding: 0.9rem 1.7rem;
+    font-size: 1.2rem;
+    border-radius: 10px;
+  }
+
+  /* Mesaj input alanı genişliği ve yüksekliği artırıldı */
+  .message-input {
+    padding: 1rem 1.2rem;
+    font-size: 1.1rem;
+    border-radius: 10px;
+  }
+
+  /* Placeholder renk açıldı */
+  .message-input::placeholder {
+    color: #bbb;
+  }
+
+  /* Scrollbar mobilde gizlensin */
+  .messages-area::-webkit-scrollbar {
+    display: none;
+  }
+  .messages-area {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+
+  /* Sidebar close button daha büyük ve rahat */
+  .close-sidebar-mobile-button {
+    font-size: 1.6rem;
+    padding: 0.7rem;
+  }
+
+  /* Sidebar yeni sohbet ve listelerde gap biraz artırıldı */
+  .sidebar-content {
+    gap: 1.5rem;
   }
 }
+
 </style>
