@@ -123,8 +123,7 @@ watch(() => route.path, async () => {
   border: none;
   font-size: 1.8rem;
   cursor: pointer;
-    color: var(--primary-color);
-
+  color: white;
 }
 
 .mobile-menu {
