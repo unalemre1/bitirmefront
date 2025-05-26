@@ -67,7 +67,6 @@ watch(() => route.path, async () => {
     <nav class="mobile-menu" v-if="menuOpen">
       <AboutButton />
       <router-link to="/subscription" class="subscription-link">Abonelik</router-link>
-      
       <ProfileButton v-if="isAuthenticated" />
       <LogoutButton v-if="isAuthenticated" />
       <LoginButton v-else />
