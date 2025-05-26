@@ -55,12 +55,12 @@ watch(() => route.path, async () => {
         <LogoutButton v-if="isAuthenticated" />
         <LoginButton v-else />
       </nav>
-      
-      <ThemeToggle :is-dark-mode="isDarkMode" @toggle="toggleTheme" />
-      <!-- Mobil hamburger -->
-      <button class="hamburger" @click="menuOpen = !menuOpen">
-        ☰
-      </button>
+
+      <!-- Mobil tema ve hamburger -->
+      <div class="mobile-actions">
+        <ThemeToggle :is-dark-mode="isDarkMode" @toggle="toggleTheme" />
+        <button class="hamburger" @click="menuOpen = !menuOpen">☰</button>
+      </div>
     </div>
 
     <!-- Mobil menü -->
@@ -119,7 +119,6 @@ watch(() => route.path, async () => {
 }
 
 .hamburger {
-  display: none;
   background: none;
   border: none;
   font-size: 1.8rem;
@@ -133,6 +132,13 @@ watch(() => route.path, async () => {
   padding: 1rem;
 }
 
+.mobile-actions {
+  display: none;
+  align-items: center;
+  gap: 0.5rem; /* tema butonu ile hamburger arası mesafe */
+}
+
+/* 🌙 Temalar */
 :global(body.dark-mode) {
   --header-bg: #1a1a1a;
   --header-text: #ffffff;
@@ -145,16 +151,13 @@ watch(() => route.path, async () => {
 
 /* 🌟 Mobil düzenleme */
 @media (max-width: 768px) {
-  .header-content {
-    flex-wrap: nowrap;
-  }
-
   .header-actions.desktop {
     display: none;
   }
 
-  .hamburger {
-    display: block;
+  .mobile-actions {
+    display: flex;
+    margin-left: auto; /* Sağa yasla */
   }
 
   .mobile-menu {
