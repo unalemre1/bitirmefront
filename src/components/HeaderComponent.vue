@@ -56,19 +56,15 @@ watch(() => route.path, async () => {
         <LoginButton v-else />
       </nav>
 
-      <!-- Mobil tema + hamburger -->
+      <!-- Mobil tema ve hamburger -->
       <div class="mobile-actions">
         <ThemeToggle :is-dark-mode="isDarkMode" @toggle="toggleTheme" />
-        <button class="hamburger" :class="{ open: menuOpen }" @click="menuOpen = !menuOpen">
-          <span></span>
-          <span></span>
-          <span></span>
-        </button>
+        <button class="hamburger" @click="menuOpen = !menuOpen">☰</button>
       </div>
     </div>
 
     <!-- Mobil menü -->
-    <nav class="mobile-menu" :class="{ show: menuOpen }">
+    <nav class="mobile-menu" v-if="menuOpen">
       <AboutButton />
       <router-link to="/subscription" class="subscription-link">Abonelik</router-link>
       <ProfileButton v-if="isAuthenticated" />
@@ -122,63 +118,24 @@ watch(() => route.path, async () => {
   color: var(--primary-color);
 }
 
-/* 🌟 Hamburger Animasyonu */
 .hamburger {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
-  width: 24px;
-  height: 24px;
-  background: transparent;
+  background: none;
   border: none;
+  font-size: 1.8rem;
   cursor: pointer;
-  padding: 0;
-  box-sizing: border-box;
 }
 
-.hamburger span {
-  width: 100%;
-  height: 3px;
-  background-color: var(--text-color);
-  border-radius: 2px;
-  transition: all 0.3s linear;
-}
-
-.hamburger.open span:nth-child(1) {
-  transform: rotate(45deg) translate(5px, 5px);
-}
-
-.hamburger.open span:nth-child(2) {
-  opacity: 0;
-}
-
-.hamburger.open span:nth-child(3) {
-  transform: rotate(-45deg) translate(5px, -5px);
-}
-
-/* 🌟 Mobil menü animasyonu */
 .mobile-menu {
   display: none;
   flex-direction: column;
   gap: 0.75rem;
-  padding: 1rem;
-  background-color: var(--header-bg);
-  width: 100%;
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.4s ease, padding 0.3s ease;
-}
-
-.mobile-menu.show {
-  display: flex;
-  max-height: 500px; /* Yeterli yüksekliğe ayarla */
   padding: 1rem;
 }
 
 .mobile-actions {
   display: none;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.5rem; /* tema butonu ile hamburger arası mesafe */
 }
 
 /* 🌙 Temalar */
@@ -201,6 +158,17 @@ watch(() => route.path, async () => {
   .mobile-actions {
     display: flex;
     margin-left: auto; /* Sağa yasla */
+  }
+
+  .mobile-menu {
+    display: flex;
+    background-color: var(--header-bg);
+    width: 100%;
+  }
+
+  .subscription-link {
+    width: 100%;
+    text-align: left;
   }
 }
 </style>
