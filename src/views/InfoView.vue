@@ -125,17 +125,19 @@ const navigateToSignup = () => router.push('/signup')
   color: white;
   padding: 4rem 2rem;
   text-align: center;
-  }
+}
 
 .hero-content {
   max-width: 800px;
   margin: 0 auto;
+  padding: 0 1rem;
 }
 
 .hero-title {
   font-size: 3.5rem;
   margin-bottom: 1rem;
   font-weight: 700;
+  word-break: break-word;
 }
 
 .hero-subtitle {
@@ -149,12 +151,14 @@ const navigateToSignup = () => router.push('/signup')
   margin-bottom: 2rem;
   opacity: 0.8;
   line-height: 1.6;
+  word-break: break-word;
 }
 
 .hero-buttons {
   display: flex;
   gap: 1rem;
   justify-content: center;
+  flex-wrap: wrap;
 }
 
 .hero-btn {
@@ -193,6 +197,7 @@ const navigateToSignup = () => router.push('/signup')
   gap: 2rem;
   max-width: 1200px;
   margin: 0 auto;
+  padding: 0 1rem;
 }
 
 .feature-item {
@@ -202,6 +207,7 @@ const navigateToSignup = () => router.push('/signup')
   border-radius: 12px;
   box-shadow: 0 4px 6px var(--shadow-color);
   transition: transform 0.3s ease;
+  word-break: break-word;
 }
 
 .feature-item:hover {
@@ -235,6 +241,7 @@ const navigateToSignup = () => router.push('/signup')
 .benefits-container {
   max-width: 900px;
   margin: 0 auto;
+  padding: 0 1rem;
 }
 
 .benefit-item {
@@ -246,6 +253,7 @@ const navigateToSignup = () => router.push('/signup')
   background: var(--bg-color);
   border-radius: 12px;
   transition: transform 0.3s ease;
+  word-break: break-word;
 }
 
 .benefit-item:hover {
@@ -258,6 +266,10 @@ const navigateToSignup = () => router.push('/signup')
   flex-shrink: 0;
 }
 
+.benefit-content {
+  flex: 1;
+}
+
 .benefit-content h3 {
   font-size: 1.25rem;
   margin-bottom: 0.5rem;
@@ -268,6 +280,7 @@ const navigateToSignup = () => router.push('/signup')
   color: var(--text-color);
   opacity: 0.8;
   line-height: 1.6;
+  word-break: break-word;
 }
 
 /* CTA Section */
@@ -281,6 +294,7 @@ const navigateToSignup = () => router.push('/signup')
 .cta-content {
   max-width: 600px;
   margin: 0 auto;
+  padding: 0 1rem;
 }
 
 .cta-content h2 {
@@ -305,6 +319,7 @@ const navigateToSignup = () => router.push('/signup')
 .cta-btn:hover {
   background: rgba(255, 255, 255, 0.9);
   transform: translateY(-2px);
+  width: 100%;
 }
 
 /* Responsive Design */
@@ -319,6 +334,7 @@ const navigateToSignup = () => router.push('/signup')
 
   .hero-buttons {
     flex-direction: column;
+    gap: 0.5rem;
   }
 
   .features-grid {
@@ -330,6 +346,14 @@ const navigateToSignup = () => router.push('/signup')
     align-items: center;
     text-align: center;
   }
+
+  .benefit-icon {
+    font-size: 1.75rem;
+  }
+
+  .feature-item {
+    padding: 1.5rem;
+  }
 }
 
 @media (max-width: 480px) {
@@ -337,13 +361,26 @@ const navigateToSignup = () => router.push('/signup')
     padding: 3rem 1rem;
   }
 
-  .section-title {
-    font-size: 1.75rem;
+  .hero-title {
+    font-size: 2rem;
+  }
+
+  .hero-subtitle {
+    font-size: 1rem;
+  }
+
+  .hero-description {
+    font-size: 1rem;
   }
 
   .feature-item,
   .benefit-item {
-    padding: 1.5rem 1rem;
+    padding: 1rem;
+  }
+
+  .cta-btn {
+    width: 100%;
+    padding: 1rem;
   }
 }
 </style>
