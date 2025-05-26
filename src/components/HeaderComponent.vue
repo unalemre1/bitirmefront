@@ -55,7 +55,8 @@ watch(() => route.path, async () => {
         <LogoutButton v-if="isAuthenticated" />
         <LoginButton v-else />
       </nav>
-
+      
+      <ThemeToggle :is-dark-mode="isDarkMode" @toggle="toggleTheme" />
       <!-- Mobil hamburger -->
       <button class="hamburger" @click="menuOpen = !menuOpen">
         ☰
@@ -66,7 +67,7 @@ watch(() => route.path, async () => {
     <nav class="mobile-menu" v-if="menuOpen">
       <AboutButton />
       <router-link to="/subscription" class="subscription-link">Abonelik</router-link>
-      <ThemeToggle :is-dark-mode="isDarkMode" @toggle="toggleTheme" />
+      
       <ProfileButton v-if="isAuthenticated" />
       <LogoutButton v-if="isAuthenticated" />
       <LoginButton v-else />
