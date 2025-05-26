@@ -14,6 +14,7 @@ const { isDarkMode, toggleTheme } = useTheme()
 const { verifyToken } = useAuth()
 const isAuthenticated = ref(false)
 const route = useRoute()
+const menuOpen = ref(false)
 
 const checkAuth = async () => {
   const token = localStorage.getItem('token')
@@ -34,6 +35,7 @@ onMounted(async () => {
 
 watch(() => route.path, async () => {
   await checkAuth()
+  menuOpen.value = false // Sayfa değişince menü kapansın
 })
 </script>
 
@@ -42,16 +44,33 @@ watch(() => route.path, async () => {
     <div class="header-content">
       <div class="header-left">
         <Logo title="LexAI" />
+      </div>
+
+      <!-- Masaüstü menü -->
+      <nav class="header-actions desktop">
         <AboutButton />
         <router-link to="/subscription" class="subscription-link">Abonelik</router-link>
-      </div>
-      <div class="header-actions">
         <ThemeToggle :is-dark-mode="isDarkMode" @toggle="toggleTheme" />
         <ProfileButton v-if="isAuthenticated" />
         <LogoutButton v-if="isAuthenticated" />
         <LoginButton v-else />
-      </div>
+      </nav>
+
+      <!-- Mobil hamburger -->
+      <button class="hamburger" @click="menuOpen = !menuOpen">
+        ☰
+      </button>
     </div>
+
+    <!-- Mobil menü -->
+    <nav class="mobile-menu" v-if="menuOpen">
+      <AboutButton />
+      <router-link to="/subscription" class="subscription-link">Abonelik</router-link>
+      <ThemeToggle :is-dark-mode="isDarkMode" @toggle="toggleTheme" />
+      <ProfileButton v-if="isAuthenticated" />
+      <LogoutButton v-if="isAuthenticated" />
+      <LoginButton v-else />
+    </nav>
   </header>
 </template>
 
@@ -63,7 +82,7 @@ watch(() => route.path, async () => {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   width: 100%;
   box-sizing: border-box;
-  overflow-x: hidden; /* Yatay kaymayı engeller */
+  overflow-x: hidden;
 }
 
 .header-content {
@@ -73,37 +92,45 @@ watch(() => route.path, async () => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  flex-wrap: wrap; /* İçeriği sarmalar */
 }
 
 .header-left {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  flex-wrap: wrap; /* Mobilde satır altına iner */
 }
 
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  flex-wrap: wrap; /* Mobilde butonlar satır altına iner */
-  justify-content: flex-end;
+  gap: 1rem;
 }
 
 .subscription-link {
-  position: relative;
   padding: 0.5rem 0.75rem;
   font-weight: 500;
   color: var(--text-color);
   text-decoration: none;
   border-radius: 8px;
   transition: all 0.3s ease;
-  white-space: nowrap; /* Metin taşmasını engeller */
 }
 
 .subscription-link:hover {
   color: var(--primary-color);
+}
+
+.hamburger {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 1.8rem;
+  cursor: pointer;
+}
+
+.mobile-menu {
+  display: none;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
 }
 
 :global(body.dark-mode) {
@@ -116,20 +143,29 @@ watch(() => route.path, async () => {
   --header-text: #213547;
 }
 
-/* 🎯 Mobil düzenleme */
+/* 🌟 Mobil düzenleme */
 @media (max-width: 768px) {
   .header-content {
-    flex-direction: column;
-    align-items: flex-start; /* İçeriği sola hizala */
+    flex-wrap: nowrap;
   }
 
-  .header-left, .header-actions {
+  .header-actions.desktop {
+    display: none;
+  }
+
+  .hamburger {
+    display: block;
+  }
+
+  .mobile-menu {
+    display: flex;
+    background-color: var(--header-bg);
     width: 100%;
-    justify-content: space-between; /* Elemanlar iki uca */
   }
 
-  .header-actions {
-    margin-top: 0.5rem;
+  .subscription-link {
+    width: 100%;
+    text-align: left;
   }
 }
 </style>
