@@ -104,7 +104,7 @@ onMounted(() => {
             <i class="bi bi-chat-left-text"></i>
             <span>Önceki Sohbet 1</span>
           </button>
-        </div>
+          </div>
       </div>
     </aside>
 
@@ -158,12 +158,26 @@ onMounted(() => {
 </template>
 
 <style scoped>
+/* Define CSS variables for easier theme management */
+:root {
+  --bg-color: #f0f2f5; /* Light grey background */
+  --card-bg: #ffffff; /* White for cards/panels */
+  --primary-color: #007bff; /* Blue for primary actions/highlights */
+  --primary-dark-color: #0056b3; /* Darker blue for hover */
+  --primary-disabled: #a0c3e8; /* Lighter blue for disabled buttons */
+  --secondary-color: #6c757d; /* Grey for secondary elements */
+  --text-color: #333; /* Dark text */
+  --border-color: #e0e0e0; /* Light border */
+  --shadow-color: rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  --hover-bg-color: #f5f5f5; /* Background on hover */
+}
+
+/* Base Styles */
 .chat-page {
-  height: 90vh;
-  background: var(--bg-color);
-  position: relative;
+  height: 100vh; /* Use full viewport height */
   display: flex;
-  overflow: hidden;
+  background: var(--bg-color);
+  overflow: hidden; /* Prevent body scroll */
 }
 
 /* --- Sidebar Styles --- */
@@ -173,7 +187,7 @@ onMounted(() => {
   background: var(--card-bg);
   box-shadow: 2px 0 8px var(--shadow-color);
   z-index: 1000;
-  flex-shrink: 0;
+  flex-shrink: 0; /* Prevent shrinking */
   transition: transform 0.3s ease-out, margin-left 0.3s ease-out;
 }
 
@@ -181,28 +195,28 @@ onMounted(() => {
 @media (min-width: 769px) {
   .chat-sidebar {
     position: relative;
-    margin-left: -280px;
-    transform: none;
+    margin-left: -280px; /* Hidden by default */
+    transform: none; /* Reset transform */
   }
 
   .chat-sidebar.show-desktop {
-    margin-left: 0;
+    margin-left: 0; /* Shown when active */
   }
 }
 
 /* Mobile Sidebar Behavior: Overlays content */
 @media (max-width: 768px) {
   .chat-sidebar {
-    position: fixed;
+    position: fixed; /* Fixed position */
     top: 0;
     left: 0;
     height: 100%;
-    transform: translateX(-100%);
-    margin-left: 0;
+    transform: translateX(-100%); /* Hidden by default */
+    margin-left: 0; /* No margin on mobile */
   }
 
   .chat-sidebar.show-mobile {
-    transform: translateX(0);
+    transform: translateX(0); /* Shown when active */
   }
 }
 
@@ -212,18 +226,26 @@ onMounted(() => {
   justify-content: space-between;
   align-items: center;
   border-bottom: 1px solid var(--border-color);
+  background: var(--card-bg); /* Ensure header has background */
+}
+
+.sidebar-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: var(--text-color);
 }
 
 /* Close button specifically for the mobile sidebar */
 .close-sidebar-mobile-button {
   background: none;
   border: none;
-  font-size: 1.25rem;
+  font-size: 1.5rem; /* Slightly larger for touch */
   color: var(--text-color);
   cursor: pointer;
-  display: none; /* Hidden by default */
-  padding: 0.5rem; /* Add padding for better click area */
-  border-radius: 50%; /* Make it circular */
+  display: none; /* Hidden by default on desktop */
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition: background-color 0.2s ease;
 }
 
 @media (max-width: 768px) {
@@ -238,6 +260,8 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  overflow-y: auto; /* Allow scrolling for many conversations */
+  height: calc(100% - 61px); /* Account for header height */
 }
 
 .new-chat-button {
@@ -252,13 +276,17 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  justify-content: center; /* Center content */
-  font-size: 1rem; /* Ensure readable font size */
-  transition: background-color 0.2s ease; /* Smooth hover effect */
+  justify-content: center;
+  font-size: 1rem;
+  transition: background-color 0.2s ease, transform 0.1s ease;
 }
 
 .new-chat-button:hover {
-  background-color: var(--primary-dark-color, #0056b3);
+  background-color: var(--primary-dark-color);
+}
+
+.new-chat-button:active {
+  transform: scale(0.98); /* Visual feedback on tap */
 }
 
 .conversations-list {
@@ -279,11 +307,11 @@ onMounted(() => {
   gap: 0.5rem;
   cursor: pointer;
   font-size: 0.95rem;
-  transition: background-color 0.2s ease, border-color 0.2s ease;
+  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
   width: 100%;
   white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis;
+  text-overflow: ellipsis; /* Truncate long conversation names */
 }
 
 .conversation-item i {
@@ -291,8 +319,12 @@ onMounted(() => {
 }
 
 .conversation-item:hover {
-  background: var(--hover-bg-color, #e0e0e0);
+  background: var(--hover-bg-color);
   border-color: var(--primary-color);
+}
+
+.conversation-item:active {
+  transform: scale(0.98); /* Visual feedback on tap */
 }
 
 .conversation-item.active {
@@ -315,7 +347,7 @@ onMounted(() => {
   background: rgba(0, 0, 0, 0.5);
   opacity: 0;
   visibility: hidden;
-  transition: all 0.3s ease;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
   z-index: 999;
 }
 
@@ -328,7 +360,7 @@ onMounted(() => {
 
 @media (min-width: 769px) {
   .sidebar-overlay {
-    display: none;
+    display: none; /* Hide overlay on desktop */
   }
 }
 
@@ -339,24 +371,19 @@ onMounted(() => {
   flex-direction: column;
   padding: 1rem;
   max-width: 100%;
-  overflow: hidden;
+  overflow: hidden; /* Important for preventing horizontal scroll */
   transition: margin-left 0.3s ease-out;
   margin-left: 0;
-  width: 100%;
+  width: 100%; /* Ensure it takes full width initially */
 }
 
 @media (min-width: 769px) {
   .chat-main.shifted-desktop {
-    margin-left: 10px;
+    margin-left: 10px; /* Small gap when sidebar is open */
   }
 }
 
-@media (max-width: 768px) {
-  .chat-main.shifted-desktop {
-    margin-left: 0;
-  }
-}
-
+/* Chat Header */
 .chat-header {
   display: flex;
   align-items: center;
@@ -366,11 +393,13 @@ onMounted(() => {
   padding: 1rem;
   margin-bottom: 1rem;
   box-shadow: 0 2px 4px var(--shadow-color);
+  flex-shrink: 0; /* Prevent header from shrinking */
 }
 
 .header-content h1 {
-  font-size: 1.5rem; /* Küçültüldü */
+  font-size: 1.5rem;
   margin: 0;
+  color: var(--text-color);
 }
 
 /* The main sidebar toggle button (in chat-header) */
@@ -382,34 +411,39 @@ onMounted(() => {
   cursor: pointer;
   padding: 0.5rem;
   border-radius: 50%;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.2s ease, transform 0.1s ease;
 }
 
 .menu-toggle-button:hover {
-  background-color: var(--hover-bg-color, rgba(0, 0, 0, 0.05));
+  background-color: var(--hover-bg-color);
+}
+.menu-toggle-button:active {
+  transform: scale(0.95);
 }
 
+/* Messages Area */
 .messages-area {
   flex: 1;
-  overflow-y: auto;
+  overflow-y: auto; /* Enable scrolling for messages */
   padding: 1rem;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem; /* Mesajlar arası boşluk artırıldı */
+  gap: 1.5rem;
   background: var(--card-bg);
   border-radius: 12px;
   box-shadow: 0 2px 4px var(--shadow-color);
+  position: relative; /* Needed for padding-bottom adjustment on mobile */
 }
 
 .message {
   display: flex;
   gap: 1rem;
-  max-width: 80%;
+  max-width: 80%; /* Limit message width */
 }
 
 .message.user {
-  flex-direction: row-reverse;
-  align-self: flex-end;
+  flex-direction: row-reverse; /* Align user messages to the right */
+  align-self: flex-end; /* Push user messages to the end */
 }
 
 .message-avatar {
@@ -419,6 +453,8 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 1.2rem;
+  flex-shrink: 0; /* Prevent avatar from shrinking */
 }
 
 .message.assistant .message-avatar {
@@ -435,27 +471,33 @@ onMounted(() => {
   padding: 1rem;
   border-radius: 12px;
   line-height: 1.5;
+  word-wrap: break-word; /* Ensure long words break */
+  white-space: pre-wrap; /* Preserve whitespace and breaks */
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08); /* Subtle shadow for bubbles */
 }
 
 .message.assistant .message-bubble {
   background: var(--bg-color);
   color: var(--text-color);
+  border-bottom-left-radius: 4px; /* Pointy bubble for assistant */
 }
 
 .message.user .message-bubble {
   background: var(--primary-color);
   color: white;
+  border-bottom-right-radius: 4px; /* Pointy bubble for user */
 }
 
 /* --- Input Area Styles --- */
 .input-area {
-  padding: 1.5rem 1rem; /* Üstte boşluk artırıldı */
+  padding: 1.5rem 1rem;
   margin-top: 10px;
   background: var(--card-bg);
   border-radius: 12px;
   box-shadow: 0 2px 4px var(--shadow-color);
   position: relative;
   z-index: 1002;
+  flex-shrink: 0; /* Prevent input area from shrinking */
 }
 
 .input-form {
@@ -471,6 +513,12 @@ onMounted(() => {
   background: var(--bg-color);
   color: var(--text-color);
   font-size: 1rem;
+  outline: none; /* Remove default outline */
+  transition: border-color 0.2s ease;
+}
+
+.message-input:focus {
+  border-color: var(--primary-color);
 }
 
 .send-button {
@@ -480,36 +528,130 @@ onMounted(() => {
   border: none;
   border-radius: 8px;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.send-button:hover {
+  background: var(--primary-dark-color);
+}
+
+.send-button:active {
+  transform: scale(0.95);
 }
 
 .send-button:disabled {
   background: var(--primary-disabled);
   cursor: not-allowed;
+  opacity: 0.8;
 }
 
-/* --- Responsive Adjustments --- */
+/* --- Responsive Adjustments for Mobile --- */
 @media (max-width: 768px) {
+  .chat-page {
+    flex-direction: column; /* Stack sidebar and main content */
+    height: 100dvh; /* Use dynamic viewport height for better mobile support */
+  }
+
   .chat-main {
-    padding: 0.5rem;
+    padding: 0.5rem; /* Less padding on small screens */
+    width: 100%;
+    margin-left: 0; /* No margin on mobile */
+  }
+
+  .chat-header {
+    padding: 0.75rem; /* Smaller header padding */
+    margin-bottom: 0.75rem; /* Smaller margin */
+    border-radius: 8px; /* Slightly smaller radius */
+  }
+
+  .header-content h1 {
+    font-size: 1.3rem; /* Smaller title */
+  }
+
+  .menu-toggle-button {
+    font-size: 1.3rem; /* Smaller toggle button */
+  }
+
+  .messages-area {
+    padding: 0.75rem; /* Smaller padding */
+    border-radius: 8px; /* Smaller radius */
+    margin-bottom: 0; /* Remove bottom margin to accommodate fixed input */
+    /* On mobile, we need space at the bottom for the fixed input area */
+    padding-bottom: 100px; /* Adjust based on input-area height + padding */
   }
 
   .message {
-    max-width: 90%;
+    max-width: 95%; /* Allow messages to take up more width */
+    gap: 0.75rem; /* Slightly smaller gap between avatar and bubble */
+  }
+
+  .message-avatar {
+    width: 36px;
+    height: 36px;
+    font-size: 1.1rem;
+  }
+
+  .message-bubble {
+    padding: 0.8rem; /* Slightly smaller bubble padding */
+    font-size: 0.95rem; /* Slightly smaller text in bubbles */
+    border-radius: 10px; /* Slightly smaller radius for bubbles */
   }
 
   /* Fixed input area for mobile */
   .input-area {
-    position: fixed;
+    position: fixed; /* Fixed at the bottom */
     bottom: 0;
     left: 0;
     width: 100%;
-    border-radius: 0;
-    padding: 1rem 1rem; /* Üst boşluk biraz artırıldı */
-    box-shadow: 0 -2px 8px var(--shadow-color);
+    border-radius: 0; /* No border radius on corners for full width */
+    padding: 0.75rem 1rem; /* Adjust padding for mobile */
+    box-shadow: 0 -2px 8px var(--shadow-color); /* Shadow on top */
+    background: var(--card-bg); /* Ensure background is solid */
+    z-index: 1002;
   }
 
+  .input-form {
+    gap: 0.75rem; /* Slightly larger gap in input form */
+  }
+
+  .message-input {
+    padding: 0.65rem 0.9rem; /* Slightly smaller padding */
+    font-size: 0.95rem; /* Smaller font size */
+    border-radius: 6px; /* Smaller border radius */
+  }
+
+  .send-button {
+    padding: 0.65rem 1.2rem; /* Adjusted padding */
+    font-size: 1rem; /* Adjusted font size */
+    border-radius: 6px; /* Smaller border radius */
+  }
+}
+
+@media (max-width: 480px) {
+  /* Further adjustments for very small mobile screens */
+  .chat-header {
+    padding: 0.6rem;
+  }
+  .header-content h1 {
+    font-size: 1.2rem;
+  }
   .messages-area {
-    padding-bottom: 110px;
+    padding-bottom: 90px; /* Adjust if input area height changes */
+  }
+  .input-area {
+    padding: 0.6rem 0.8rem;
+  }
+  .message-input {
+    padding: 0.6rem 0.8rem;
+    font-size: 0.9rem;
+  }
+  .send-button {
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
   }
 }
 </style>
