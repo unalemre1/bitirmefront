@@ -565,7 +565,7 @@ onMounted(() => {
     position: fixed;
     bottom: 0;
     left: 0;
-    width: 90%;
+    width: 50%;
     border-radius: 0;
     padding: 1rem 1rem;
     box-shadow: 0 -2px 8px var(--shadow-color);
