@@ -14,7 +14,7 @@ const showSidebar = ref(false)
 const attachedFiles = ref<File[]>([]) // Array to store attached files
 
 // Backend API URL'ini buraya tanımlayın
-const API_URL = 'http://localhost:3000/api/chat'; // Burayı kendi backend URL'inizle değiştirin!
+const API_URL = 'http://localhost:3000/api/ask'; // Burayı kendi backend URL'inizle değiştirin!
 
 const sendMessage = async () => {
   if (!newMessage.value.trim() && attachedFiles.value.length === 0) return
