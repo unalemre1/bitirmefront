@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useTitle } from '@vueuse/core'
-import axios from 'axios'
+import axios from 'axios' // Axios'u import ediyoruz
 
 useTitle('AI Chat | LexAI')
 
@@ -10,23 +10,26 @@ const messages = ref<Array<{ role: 'user' | 'assistant', content: string }>>([
 ])
 const newMessage = ref('')
 const chatContainer = ref<HTMLDivElement | null>(null)
+
 const showSidebar = ref(false)
-const attachedFiles = ref<File[]>([]) // Array to store attached files
 
 // Backend API URL'ini buraya tanımlayın
+// Kendi backend'inizin adresine göre bu URL'i değiştirmeniz gerekecek.
+// Örneğin: 'http://localhost:3000/api/chat' veya 'https://your-backend-api.com/chat'
 const API_URL = 'http://localhost:3000/api/ask'; // Burayı kendi backend URL'inizle değiştirin!
 
 const sendMessage = async () => {
-  if (!newMessage.value.trim() && attachedFiles.value.length === 0) return
+  if (!newMessage.value.trim()) return
 
   const userMessageContent = newMessage.value
   messages.value.push({
     role: 'user',
-    content: userMessageContent || 'Dosya gönderildi.' // If only files are sent
+    content: userMessageContent
   })
 
   newMessage.value = ''
 
+  // Yapay zeka yanıtı beklenirken geçici bir mesaj ekleyelim
   messages.value.push({
     role: 'assistant',
     content: 'Yapay zeka yanıtı bekleniyor...'
@@ -34,45 +37,26 @@ const sendMessage = async () => {
   scrollToBottom()
 
   try {
-    const formData = new FormData();
-    formData.append('message', userMessageContent);
-
-    attachedFiles.value.forEach((file, index) => {
-      formData.append(`file${index}`, file); // Append each file
-    });
-
-    const response = await axios.post(API_URL, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data' // Important for file uploads
-      }
+    // Backend'e POST isteği gönderiyoruz
+    const response = await axios.post(API_URL, {
+      question: userMessageContent // Backend'e göndereceğimiz mesaj
     });
 
     messages.value[messages.value.length - 1] = {
-      role: 'assistant',
-      content: response.data.reply || 'Yanıt alınamadı.'
-    };
-    attachedFiles.value = []; // Clear attached files after sending
+  role: 'assistant',
+  content: response.data.answer || 'Yanıt alınamadı.'
+};
+
 
   } catch (error) {
     console.error('Mesaj gönderirken hata oluştu:', error);
+    // Hata durumunda kullanıcıya bilgi verelim
     messages.value[messages.value.length - 1] = {
       role: 'assistant',
       content: 'Üzgünüm, bir hata oluştu. Lütfen tekrar deneyin.'
     };
   } finally {
     scrollToBottom();
-  }
-}
-
-const handleFileChange = (event: Event) => {
-  const input = event.target as HTMLInputElement;
-  if (input.files) {
-    // Convert FileList to Array and filter for PDFs
-    attachedFiles.value = Array.from(input.files).filter(file => file.type === 'application/pdf');
-    // Optionally, you can add a message to the user if non-PDF files are selected.
-    if (input.files.length > attachedFiles.value.length) {
-      alert('Sadece PDF dosyaları yüklenebilir. Diğer dosya türleri yoksayıldı.');
-    }
   }
 }
 
@@ -158,27 +142,13 @@ onMounted(() => {
 
       <div class="input-area">
         <form @submit.prevent="sendMessage" class="input-form">
-          <label for="pdf-upload" class="attach-button">
-            <i class="bi bi-paperclip"></i>
-            <input
-              type="file"
-              id="pdf-upload"
-              accept="application/pdf"
-              multiple
-              @change="handleFileChange"
-              style="display: none;"
-            />
-          </label>
-          <span v-if="attachedFiles.length > 0" class="file-count">
-            {{ attachedFiles.length }} PDF
-          </span>
           <input
             v-model="newMessage"
             type="text"
             placeholder="Mesajınızı yazın..."
             class="message-input"
           />
-          <button type="submit" class="send-button" :disabled="!newMessage.trim() && attachedFiles.length === 0">
+          <button type="submit" class="send-button" :disabled="!newMessage.trim()">
             <i class="bi bi-send"></i>
           </button>
         </form>
@@ -399,7 +369,7 @@ onMounted(() => {
 }
 
 .header-content h1 {
-  font-size: 1.5rem;
+  font-size: 1.5rem; /* Küçültüldü */
   margin: 0;
 }
 
@@ -425,7 +395,7 @@ onMounted(() => {
   padding: 1rem;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.5rem; /* Mesajlar arası boşluk artırıldı */
   background: var(--card-bg);
   border-radius: 12px;
   box-shadow: 0 2px 4px var(--shadow-color);
@@ -479,7 +449,7 @@ onMounted(() => {
 
 /* --- Input Area Styles --- */
 .input-area {
-  padding: 1.5rem 1rem;
+  padding: 1.5rem 1rem; /* Üstte boşluk artırıldı */
   margin-top: 10px;
   background: var(--card-bg);
   border-radius: 12px;
@@ -491,7 +461,6 @@ onMounted(() => {
 .input-form {
   display: flex;
   gap: 0.5rem;
-  align-items: center; /* Align items vertically in the center */
 }
 
 .message-input {
@@ -511,43 +480,11 @@ onMounted(() => {
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .send-button:disabled {
   background: var(--primary-disabled);
   cursor: not-allowed;
-}
-
-.attach-button {
-  background: var(--secondary-color);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  padding: 0.75rem 1rem;
-  cursor: pointer;
-  font-size: 1.2rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background-color 0.2s ease;
-}
-
-.attach-button:hover {
-  background-color: var(--secondary-dark-color, #336699);
-}
-
-.file-count {
-  margin-left: 0.5rem;
-  font-size: 0.9rem;
-  color: var(--text-color);
-  background-color: var(--bg-color);
-  padding: 0.3rem 0.6rem;
-  border-radius: 5px;
-  border: 1px solid var(--border-color);
-  white-space: nowrap; /* Prevent text wrapping */
 }
 
 /* --- Responsive Adjustments --- */
@@ -565,9 +502,9 @@ onMounted(() => {
     position: fixed;
     bottom: 0;
     left: 0;
-    width: 50%;
+    width: 100%;
     border-radius: 0;
-    padding: 1rem 1rem;
+    padding: 1rem 1rem; /* Üst boşluk biraz artırıldı */
     box-shadow: 0 -2px 8px var(--shadow-color);
   }
 
