@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useTitle } from '@vueuse/core'
-import axios from 'axios' // Axios'u import ediyoruz
+import axios from 'axios'
 
 useTitle('AI Chat | LexAI')
 
@@ -12,24 +12,22 @@ const newMessage = ref('')
 const chatContainer = ref<HTMLDivElement | null>(null)
 
 const showSidebar = ref(false)
+const uploadedFiles = ref<File[]>([]) // Yüklenen dosyaları tutmak için yeni ref
+const fileInput = ref<HTMLInputElement | null>(null) // Dosya input elemanına referans
 
-// Backend API URL'ini buraya tanımlayın
-// Kendi backend'inizin adresine göre bu URL'i değiştirmeniz gerekecek.
-// Örneğin: 'http://localhost:3000/api/chat' veya 'https://your-backend-api.com/chat'
-const API_URL = 'http://localhost:3000/api/ask'; // Burayı kendi backend URL'inizle değiştirin!
+const API_URL = 'http://localhost:3000/api/ask' // Burayı kendi backend URL'inizle değiştirin!
 
 const sendMessage = async () => {
-  if (!newMessage.value.trim()) return
+  if (!newMessage.value.trim() && uploadedFiles.value.length === 0) return
 
   const userMessageContent = newMessage.value
   messages.value.push({
     role: 'user',
-    content: userMessageContent
+    content: userMessageContent || 'Dosya(lar) yüklendi.' // Eğer sadece dosya yüklendiyse bu mesaj gösterilir
   })
 
   newMessage.value = ''
 
-  // Yapay zeka yanıtı beklenirken geçici bir mesaj ekleyelim
   messages.value.push({
     role: 'assistant',
     content: 'Yapay zeka yanıtı bekleniyor...'
@@ -37,26 +35,31 @@ const sendMessage = async () => {
   scrollToBottom()
 
   try {
-    // Backend'e POST isteği gönderiyoruz
-    const response = await axios.post(API_URL, {
-      question: userMessageContent // Backend'e göndereceğimiz mesaj
-    });
+    const formData = new FormData()
+    formData.append('question', userMessageContent)
+    uploadedFiles.value.forEach(file => {
+      formData.append('files', file) // Her dosyayı 'files' adıyla ekliyoruz
+    })
+
+    const response = await axios.post(API_URL, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data' // Dosya yüklerken bu header gerekli
+      }
+    })
 
     messages.value[messages.value.length - 1] = {
-  role: 'assistant',
-  content: response.data.answer || 'Yanıt alınamadı.'
-};
-
-
+      role: 'assistant',
+      content: response.data.answer || 'Yanıt alınamadı.'
+    }
+    uploadedFiles.value = [] // Yanıt alındıktan sonra yüklenen dosyaları temizle
   } catch (error) {
-    console.error('Mesaj gönderirken hata oluştu:', error);
-    // Hata durumunda kullanıcıya bilgi verelim
+    console.error('Mesaj gönderirken hata oluştu:', error)
     messages.value[messages.value.length - 1] = {
       role: 'assistant',
       content: 'Üzgünüm, bir hata oluştu. Lütfen tekrar deneyin.'
-    };
+    }
   } finally {
-    scrollToBottom();
+    scrollToBottom()
   }
 }
 
@@ -74,6 +77,25 @@ const toggleSidebar = () => {
 
 const closeSidebar = () => {
   showSidebar.value = false
+}
+
+const handleFileUpload = (event: Event) => {
+  const target = event.target as HTMLInputElement
+  if (target.files) {
+    // Sadece PDF dosyalarını filtrele
+    const newFiles = Array.from(target.files).filter(file => file.type === 'application/pdf');
+    uploadedFiles.value.push(...newFiles);
+    // Dosya inputunu sıfırla, böylece aynı dosyayı tekrar seçince change eventi tetiklenir
+    target.value = ''; 
+  }
+}
+
+const triggerFileInput = () => {
+  fileInput.value?.click()
+}
+
+const removeFile = (index: number) => {
+  uploadedFiles.value.splice(index, 1);
 }
 
 onMounted(() => {
@@ -141,14 +163,36 @@ onMounted(() => {
       </div>
 
       <div class="input-area">
+        <div v-if="uploadedFiles.length > 0" class="uploaded-files-preview">
+          <div v-for="(file, index) in uploadedFiles" :key="index" class="uploaded-file-tag">
+            <i class="bi bi-file-earmark-pdf"></i>
+            <span>{{ file.name }}</span>
+            <button @click="removeFile(index)" class="remove-file-button">
+              <i class="bi bi-x"></i>
+            </button>
+          </div>
+          <span class="file-count">{{ uploadedFiles.length }} PDF</span>
+        </div>
+
         <form @submit.prevent="sendMessage" class="input-form">
+          <input
+            type="file"
+            ref="fileInput"
+            @change="handleFileUpload"
+            accept=".pdf"
+            multiple
+            hidden
+          />
+          <button type="button" class="attach-button" @click="triggerFileInput">
+            <i class="bi bi-paperclip"></i>
+          </button>
           <input
             v-model="newMessage"
             type="text"
             placeholder="Mesajınızı yazın..."
             class="message-input"
           />
-          <button type="submit" class="send-button" :disabled="!newMessage.trim()">
+          <button type="submit" class="send-button" :disabled="!newMessage.trim() && uploadedFiles.length === 0">
             <i class="bi bi-send"></i>
           </button>
         </form>
@@ -158,6 +202,8 @@ onMounted(() => {
 </template>
 
 <style scoped>
+/* Mevcut stilleri koruyun ve aşağıdaki eklemeleri yapın */
+
 .chat-page {
   height: 90vh;
   background: var(--bg-color);
@@ -456,11 +502,15 @@ onMounted(() => {
   box-shadow: 0 2px 4px var(--shadow-color);
   position: relative;
   z-index: 1002;
+  display: flex; /* Flexbox ekleyelim */
+  flex-direction: column; /* Dikey sıralama */
+  gap: 0.5rem; /* Elemanlar arası boşluk */
 }
 
 .input-form {
   display: flex;
   gap: 0.5rem;
+  align-items: center; /* Dikeyde ortala */
 }
 
 .message-input {
@@ -480,6 +530,9 @@ onMounted(() => {
   border: none;
   border-radius: 8px;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .send-button:disabled {
@@ -487,7 +540,81 @@ onMounted(() => {
   cursor: not-allowed;
 }
 
-/* --- Responsive Adjustments --- */
+/* Yeni Eklenecek Stiller */
+.attach-button {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--text-color);
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition: background-color 0.2s ease;
+}
+
+.attach-button:hover {
+  background-color: var(--hover-bg-color, rgba(0, 0, 0, 0.05));
+}
+
+.uploaded-files-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 0.5rem;
+  align-items: center;
+  background: var(--bg-color);
+  border-radius: 8px;
+  padding: 0.75rem;
+}
+
+.uploaded-file-tag {
+  display: flex;
+  align-items: center;
+  background: var(--primary-light-color, #e0f2f7);
+  color: var(--primary-dark-color, #0056b3);
+  padding: 0.3rem 0.6rem;
+  border-radius: 5px;
+  font-size: 0.85rem;
+  gap: 0.3rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 150px; /* Belirli bir genişlik vererek uzun isimleri kısalt */
+}
+
+.uploaded-file-tag i {
+  font-size: 1rem;
+}
+
+.remove-file-button {
+  background: none;
+  border: none;
+  color: var(--primary-dark-color, #0056b3);
+  font-size: 1rem;
+  cursor: pointer;
+  margin-left: 0.2rem;
+  padding: 0;
+  line-height: 1; /* Butonun içeriği ile dikey hizalamayı iyileştirir */
+}
+
+.remove-file-button:hover {
+  color: red;
+}
+
+.file-count {
+  margin-left: auto; /* Sağ tarafa yasla */
+  background: var(--secondary-color);
+  color: white;
+  padding: 0.3rem 0.6rem;
+  border-radius: 5px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+/* Responsive Adjustments */
 @media (max-width: 768px) {
   .chat-main {
     padding: 0.5rem;
@@ -504,12 +631,16 @@ onMounted(() => {
     left: 0;
     width: 100%;
     border-radius: 0;
-    padding: 1rem 1rem; /* Üst boşluk biraz artırıldı */
+    padding: 1rem; /* Üst boşluk biraz artırıldı */
     box-shadow: 0 -2px 8px var(--shadow-color);
   }
 
   .messages-area {
-    padding-bottom: 110px;
+    padding-bottom: 150px; /* Dosya önizleme alanı ve input için yeterli boşluk bırak */
+  }
+
+  .uploaded-files-preview {
+    justify-content: center; /* Mobil görünümde ortala */
   }
 }
 </style>
