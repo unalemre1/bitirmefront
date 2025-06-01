@@ -491,7 +491,7 @@ onMounted(() => {
 .input-form {
   display: flex;
   gap: 0.5rem;
-  align-items: center; /* Align items vertically in the center */
+  align-items: center;
 }
 
 .message-input {
@@ -547,7 +547,7 @@ onMounted(() => {
   padding: 0.3rem 0.6rem;
   border-radius: 5px;
   border: 1px solid var(--border-color);
-  white-space: nowrap; /* Prevent text wrapping */
+  white-space: nowrap;
 }
 
 /* --- Responsive Adjustments --- */
@@ -571,8 +571,39 @@ onMounted(() => {
     box-shadow: 0 -2px 8px var(--shadow-color);
   }
 
+  /* Mobil görünümdeki taşmayı düzeltmek için yapılan eklemeler */
   .messages-area {
-    padding-bottom: 110px;
+    /* input-area'nın yüksekliğini dikkate alarak alt boşluğu artırın */
+    padding-bottom: 120px; /* Bu değeri ihtiyacınıza göre ayarlayın */
+  }
+
+  .input-form {
+    flex-wrap: wrap; /* Elemanların sığmadığında bir alt satıra geçmesini sağlar */
+    gap: 0.75rem; /* Elemanlar arasında boşluğu artırır */
+    justify-content: space-between; /* Elemanları yatayda dağıt */
+  }
+
+  .attach-button {
+    flex-shrink: 0; /* Küçülmesini engelle */
+    padding: 0.6rem 0.8rem; /* Mobil için padding ayarı */
+  }
+
+  .file-count {
+    flex-shrink: 0; /* Küçülmesini engelle */
+    font-size: 0.8rem; /* Mobil için font boyutunu küçült */
+    padding: 0.2rem 0.5rem; /* Mobil için padding ayarı */
+  }
+
+  .message-input {
+    flex: 1 1 auto; /* Esnekliği ayarla, küçülüp genişlemesine izin ver */
+    min-width: 120px; /* Çok fazla küçülmesini engelle */
+    order: 3; /* Sırayı değiştir, mesaj input'u alt satıra insin */
+    width: calc(100% - 1.5rem); /* Tam genişlik, gap'i hesaba kat */
+  }
+
+  .send-button {
+    flex-shrink: 0; /* Küçülmesini engelle */
+    order: 4; /* Sırayı değiştir, gönder butonu mesaj input'unun yanında kalsın */
   }
 }
 </style>
