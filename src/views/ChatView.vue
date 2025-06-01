@@ -188,12 +188,46 @@ onMounted(() => {
 </template>
 
 <style scoped>
+:root {
+  /* Default light theme colors */
+  --bg-color: #f0f2f5;
+  --card-bg: #ffffff;
+  --text-color: #333;
+  --primary-color: #007bff;
+  --primary-dark-color: #0056b3;
+  --primary-disabled: #a0c9f1;
+  --secondary-color: #6c757d;
+  --secondary-dark-color: #5a6268;
+  --border-color: #e0e0e0;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  --hover-bg-color: #f5f5f5;
+}
+
+/* Dark theme example (can be toggled with a class on body/html) */
+/*
+body.dark-theme {
+  --bg-color: #212529;
+  --card-bg: #2b3035;
+  --text-color: #f8f9fa;
+  --primary-color: #007bff;
+  --primary-dark-color: #0056b3;
+  --primary-disabled: #4a6c8e;
+  --secondary-color: #6c757d;
+  --secondary-dark-color: #5a6268;
+  --border-color: #495057;
+  --shadow-color: rgba(0, 0, 0, 0.5);
+  --hover-bg-color: #3a4046;
+}
+*/
+
 .chat-page {
   height: 90vh;
   background: var(--bg-color);
   position: relative;
   display: flex;
   overflow: hidden;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: var(--text-color);
 }
 
 /* --- Sidebar Styles --- */
@@ -211,12 +245,12 @@ onMounted(() => {
 @media (min-width: 769px) {
   .chat-sidebar {
     position: relative;
-    margin-left: -280px;
-    transform: none;
+    margin-left: -280px; /* Hidden by default on desktop */
+    transform: none; /* No transform needed for desktop */
   }
 
   .chat-sidebar.show-desktop {
-    margin-left: 0;
+    margin-left: 0; /* Shown when toggled */
   }
 }
 
@@ -227,12 +261,12 @@ onMounted(() => {
     top: 0;
     left: 0;
     height: 100%;
-    transform: translateX(-100%);
-    margin-left: 0;
+    transform: translateX(-100%); /* Hidden by default on mobile */
+    margin-left: 0; /* No margin trickery needed for mobile */
   }
 
   .chat-sidebar.show-mobile {
-    transform: translateX(0);
+    transform: translateX(0); /* Shown when toggled */
   }
 }
 
@@ -244,16 +278,27 @@ onMounted(() => {
   border-bottom: 1px solid var(--border-color);
 }
 
+.sidebar-header h2 {
+  font-size: 1.3rem;
+  margin: 0;
+  color: var(--text-color);
+}
+
 /* Close button specifically for the mobile sidebar */
 .close-sidebar-mobile-button {
   background: none;
   border: none;
-  font-size: 1.25rem;
+  font-size: 1.5rem; /* Increased size for better tap target */
   color: var(--text-color);
   cursor: pointer;
   display: none; /* Hidden by default */
-  padding: 0.5rem; /* Add padding for better click area */
-  border-radius: 50%; /* Make it circular */
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition: background-color 0.2s ease;
+}
+
+.close-sidebar-mobile-button:hover {
+  background-color: var(--hover-bg-color);
 }
 
 @media (max-width: 768px) {
@@ -282,13 +327,13 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  justify-content: center; /* Center content */
-  font-size: 1rem; /* Ensure readable font size */
-  transition: background-color 0.2s ease; /* Smooth hover effect */
+  justify-content: center;
+  font-size: 1rem;
+  transition: background-color 0.2s ease;
 }
 
 .new-chat-button:hover {
-  background-color: var(--primary-dark-color, #0056b3);
+  background-color: var(--primary-dark-color);
 }
 
 .conversations-list {
@@ -321,7 +366,7 @@ onMounted(() => {
 }
 
 .conversation-item:hover {
-  background: var(--hover-bg-color, #e0e0e0);
+  background: var(--hover-bg-color);
   border-color: var(--primary-color);
 }
 
@@ -377,13 +422,13 @@ onMounted(() => {
 
 @media (min-width: 769px) {
   .chat-main.shifted-desktop {
-    margin-left: 10px;
+    margin-left: 10px; /* Small gap when sidebar is open */
   }
 }
 
 @media (max-width: 768px) {
   .chat-main.shifted-desktop {
-    margin-left: 0;
+    margin-left: 0; /* No shifting on mobile */
   }
 }
 
@@ -401,6 +446,7 @@ onMounted(() => {
 .header-content h1 {
   font-size: 1.5rem;
   margin: 0;
+  color: var(--text-color);
 }
 
 /* The main sidebar toggle button (in chat-header) */
@@ -416,7 +462,7 @@ onMounted(() => {
 }
 
 .menu-toggle-button:hover {
-  background-color: var(--hover-bg-color, rgba(0, 0, 0, 0.05));
+  background-color: var(--hover-bg-color);
 }
 
 .messages-area {
@@ -434,12 +480,12 @@ onMounted(() => {
 .message {
   display: flex;
   gap: 1rem;
-  max-width: 80%;
+  max-width: 80%; /* Default max-width */
 }
 
 .message.user {
-  flex-direction: row-reverse;
-  align-self: flex-end;
+  flex-direction: row-reverse; /* Avatar on the right for user messages */
+  align-self: flex-end; /* Align user messages to the right */
 }
 
 .message-avatar {
@@ -449,6 +495,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0; /* Prevent avatar from shrinking */
 }
 
 .message.assistant .message-avatar {
@@ -465,6 +512,8 @@ onMounted(() => {
   padding: 1rem;
   border-radius: 12px;
   line-height: 1.5;
+  word-break: break-word; /* Ensure long words break */
+  overflow-wrap: break-word; /* Modern property for word breaking */
 }
 
 .message.assistant .message-bubble {
@@ -495,13 +544,14 @@ onMounted(() => {
 }
 
 .message-input {
-  flex: 1;
+  flex: 1; /* Allows input to grow and shrink */
   padding: 0.75rem 1rem;
   border: 2px solid var(--border-color);
   border-radius: 8px;
   background: var(--bg-color);
   color: var(--text-color);
   font-size: 1rem;
+  min-width: 0; /* Allows shrinking below content size if needed */
 }
 
 .send-button {
@@ -514,6 +564,12 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0; /* Prevents button from shrinking */
+  transition: background-color 0.2s ease;
+}
+
+.send-button:hover {
+  background-color: var(--primary-dark-color);
 }
 
 .send-button:disabled {
@@ -532,15 +588,15 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0; /* Prevents button from shrinking */
   transition: background-color 0.2s ease;
 }
 
 .attach-button:hover {
-  background-color: var(--secondary-dark-color, #336699);
+  background-color: var(--secondary-dark-color);
 }
 
 .file-count {
-  margin-left: 0.5rem;
   font-size: 0.9rem;
   color: var(--text-color);
   background-color: var(--bg-color);
@@ -548,6 +604,7 @@ onMounted(() => {
   border-radius: 5px;
   border: 1px solid var(--border-color);
   white-space: nowrap;
+  flex-shrink: 0; /* Prevents text from shrinking too much */
 }
 
 /* --- Responsive Adjustments --- */
@@ -566,44 +623,46 @@ onMounted(() => {
     bottom: 0;
     left: 0;
     width: 100%;
-    border-radius: 0;
-    padding: 1rem 1rem;
+    border-radius: 0; /* No border-radius for fixed full-width element */
+    padding: 1rem 1rem; /* Slightly increased padding */
     box-shadow: 0 -2px 8px var(--shadow-color);
   }
 
-  /* Mobil görünümdeki taşmayı düzeltmek için yapılan eklemeler */
+  /* Crucial: Ensure messages area has enough padding at the bottom */
   .messages-area {
-    /* input-area'nın yüksekliğini dikkate alarak alt boşluğu artırın */
-    padding-bottom: 120px; /* Bu değeri ihtiyacınıza göre ayarlayın */
+    padding-bottom: 120px; /* Adjust this value based on the final height of your input-area on mobile */
   }
 
   .input-form {
-    flex-wrap: wrap; /* Elemanların sığmadığında bir alt satıra geçmesini sağlar */
-    gap: 0.75rem; /* Elemanlar arasında boşluğu artırır */
-    justify-content: space-between; /* Elemanları yatayda dağıt */
+    flex-wrap: wrap; /* Allows items to wrap to the next line */
+    gap: 0.75rem; /* Consistent gap between wrapped items */
+    justify-content: flex-start; /* Align items to the start of the container */
+    align-items: center; /* Keep items vertically centered on their line */
   }
 
   .attach-button {
-    flex-shrink: 0; /* Küçülmesini engelle */
-    padding: 0.6rem 0.8rem; /* Mobil için padding ayarı */
+    padding: 0.6rem 0.8rem; /* Slightly smaller padding for mobile */
   }
 
   .file-count {
-    flex-shrink: 0; /* Küçülmesini engelle */
-    font-size: 0.8rem; /* Mobil için font boyutunu küçült */
-    padding: 0.2rem 0.5rem; /* Mobil için padding ayarı */
+    font-size: 0.8rem; /* Smaller font for mobile */
+    padding: 0.2rem 0.5rem; /* Smaller padding for mobile */
+    margin-left: 0; /* Remove extra margin when wrapped */
   }
 
   .message-input {
-    flex: 1 1 auto; /* Esnekliği ayarla, küçülüp genişlemesine izin ver */
-    min-width: 120px; /* Çok fazla küçülmesini engelle */
-    order: 3; /* Sırayı değiştir, mesaj input'u alt satıra insin */
-    width: calc(100% - 1.5rem); /* Tam genişlik, gap'i hesaba kat */
+    flex: 1 1 100%; /* Take full width on a new line (flex-basis: 100%) */
+    order: 3; /* Push to the third position in the flex order */
+    margin-right: 0.75rem; /* Add margin to separate from send button */
   }
 
   .send-button {
-    flex-shrink: 0; /* Küçülmesini engelle */
-    order: 4; /* Sırayı değiştir, gönder butonu mesaj input'unun yanında kalsın */
+    order: 4; /* Push to the fourth position in the flex order */
+    margin-left: auto; /* Push to the right if space allows, or align with message-input */
   }
+
+  /* If file count or attach button are on the same line as input but wrapping causes issues,
+     you might need to adjust flex-basis or max-width for message-input.
+     For this layout, setting input to 100% width on its own line is generally best. */
 }
 </style>
