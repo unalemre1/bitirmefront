@@ -69,8 +69,8 @@ const handleForgotPassword = async () => {
           <div v-if="error" class="alert error">{{ error }}</div>
 
           <div class="card-footer">
-            <p>Giriş yapmak ister misiniz? <router-link to="/login" class="login-link">Giriş Yap</router-link></p>
-            <p>Hesabınız yok mu? <router-link to="/signup" class="signup-link">Hesap Oluştur</router-link></p>
+            <p> <router-link to="/login" class="login-link">Giriş Yap</router-link></p>
+            <p> <router-link to="/signup" class="signup-link">Hesap Oluştur</router-link></p>
           </div>
         </div>
       </div>
