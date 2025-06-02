@@ -155,7 +155,7 @@ onMounted(() => {
             :disabled="!isEditing"
           />
 
-          <hr class="section-divider">
+         /* <hr class="section-divider">*/
           <h2 class="section-title">Şifre Değişikliği</h2>
           <FormInput
             v-model="profile.oldPassword"
