@@ -8,25 +8,41 @@ import type { UserProfile } from '../types/profile'
 
 useTitle('Profilim | LexAI')
 
-const profile = ref<UserProfile>({
+// Extend UserProfile type to include optional password fields for updates
+interface UserProfileWithPassword extends UserProfile {
+  oldPassword?: string;
+  newPassword?: string;
+}
+
+const profile = ref<UserProfileWithPassword>({
   name: '',
   surname: '',
   email: '',
-  userType: 'user'
+  userType: 'user',
+  oldPassword: '', // Initialize new fields
+  newPassword: ''
 })
 
 const isEditing = ref(false)
 const isSaving = ref(false)
 const error = ref<string | null>(null)
+const successMessage = ref<string | null>(null) // To show success message for password change
 
 const toggleEdit = () => {
   isEditing.value = !isEditing.value
+  // Clear password fields and messages when exiting edit mode
+  if (!isEditing.value) {
+    profile.value.oldPassword = ''
+    profile.value.newPassword = ''
+    error.value = null
+    successMessage.value = null
+  }
 }
 
 const fetchProfile = async () => {
   try {
     const data = await profileApi.fetchProfile()
-    profile.value = data
+    profile.value = { ...profile.value, ...data } // Merge fetched data
   } catch (err) {
     console.error('Error fetching profile:', err)
     error.value = 'Profil bilgileri yüklenirken bir hata oluştu'
@@ -34,15 +50,49 @@ const fetchProfile = async () => {
 }
 
 const saveProfile = async () => {
+  error.value = null; // Clear previous errors
+  successMessage.value = null; // Clear previous success messages
+
+  if (isEditing.value && (profile.value.oldPassword || profile.value.newPassword)) {
+    if (!profile.value.oldPassword || !profile.value.newPassword) {
+      error.value = 'Eski şifre ve yeni şifre alanları boş bırakılamaz.';
+      return;
+    }
+    if (profile.value.newPassword.length < 6) { // Example: Minimum password length
+      error.value = 'Yeni şifre en az 6 karakter olmalıdır.';
+      return;
+    }
+  }
+
   try {
     isSaving.value = true
-    const updatedProfile = await profileApi.updateProfile(profile.value)
-    profile.value = updatedProfile
+    const updatedProfileData: Partial<UserProfileWithPassword> = {
+      name: profile.value.name,
+      surname: profile.value.surname,
+      email: profile.value.email,
+    };
+
+    if (profile.value.oldPassword && profile.value.newPassword) {
+      updatedProfileData.oldPassword = profile.value.oldPassword;
+      updatedProfileData.newPassword = profile.value.newPassword;
+    }
+
+    const updatedProfile = await profileApi.updateProfile(updatedProfileData);
+    profile.value = { ...profile.value, ...updatedProfile }; // Update profile with returned data
+
+    // Handle password change specific success
+    if (profile.value.oldPassword && profile.value.newPassword) {
+      successMessage.value = 'Şifreniz başarıyla güncellendi.';
+      profile.value.oldPassword = ''; // Clear password fields after successful update
+      profile.value.newPassword = '';
+    } else {
+      successMessage.value = 'Profil bilgileriniz başarıyla güncellendi.';
+    }
+
     isEditing.value = false
-    error.value = null
-  } catch (err) {
+  } catch (err: any) {
     console.error('Error saving profile:', err)
-    error.value = 'Profil güncellenirken bir hata oluştu'
+    error.value = err.response?.data?.message || 'Profil güncellenirken bir hata oluştu';
   } finally {
     isSaving.value = false
   }
@@ -62,7 +112,7 @@ onMounted(() => {
             <i class="bi bi-person-circle"></i>
           </div>
           <h1>Profil Bilgileri</h1>
-          <button 
+          <button
             class="edit-button"
             @click="toggleEdit"
             v-if="!isEditing"
@@ -74,6 +124,9 @@ onMounted(() => {
 
         <div v-if="error" class="error-message">
           {{ error }}
+        </div>
+        <div v-if="successMessage" class="success-message">
+          {{ successMessage }}
         </div>
 
         <form @submit.prevent="saveProfile" class="profile-form">
@@ -117,17 +170,36 @@ onMounted(() => {
             :disabled="!isEditing"
           />
 
+          <template v-if="isEditing">
+            <hr class="section-divider">
+            <h2 class="section-title">Şifre Değişikliği</h2>
+            <FormInput
+              v-model="profile.oldPassword"
+              type="password"
+              label="Eski Şifre"
+              id="oldPassword"
+              autocomplete="current-password"
+            />
+            <FormInput
+              v-model="profile.newPassword"
+              type="password"
+              label="Yeni Şifre"
+              id="newPassword"
+              autocomplete="new-password"
+            />
+          </template>
+
           <div class="form-actions" v-if="isEditing">
-            <button 
-              type="button" 
+            <button
+              type="button"
               class="btn btn-secondary"
               @click="toggleEdit"
               :disabled="isSaving"
             >
               İptal
             </button>
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               class="btn btn-primary"
               :disabled="isSaving"
             >
@@ -145,6 +217,32 @@ onMounted(() => {
 </template>
 
 <style scoped>
+/* Existing styles... */
+
+/* Add styles for new elements */
+.section-divider {
+  border: 0;
+  height: 1px;
+  background-color: var(--border-color);
+  margin: 2rem 0;
+}
+
+.section-title {
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  color: var(--text-color);
+  text-align: center;
+}
+
+.success-message {
+  background-color: #4CAF50; /* Green color for success */
+  color: white;
+  padding: 0.75rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+/* Ensure existing styles are not broken and new styles fit well */
 .profile-page {
   min-height: 92vh;
   display: flex;
