@@ -72,6 +72,7 @@ const saveProfile = async () => {
       email: profile.value.email,
     };
 
+    // Only include password fields if they are not empty (meaning user wants to change password)
     if (profile.value.oldPassword && profile.value.newPassword) {
       updatedProfileData.oldPassword = profile.value.oldPassword;
       updatedProfileData.newPassword = profile.value.newPassword;
@@ -170,24 +171,22 @@ onMounted(() => {
             :disabled="!isEditing"
           />
 
-          <template v-if="isEditing">
-            <hr class="section-divider">
-            <h2 class="section-title">Şifre Değişikliği</h2>
-            <FormInput
-              v-model="profile.oldPassword"
-              type="password"
-              label="Eski Şifre"
-              id="oldPassword"
-              autocomplete="current-password"
-            />
-            <FormInput
-              v-model="profile.newPassword"
-              type="password"
-              label="Yeni Şifre"
-              id="newPassword"
-              autocomplete="new-password"
-            />
-          </template>
+          <hr class="section-divider">
+          <h2 class="section-title">Şifre Değişikliği</h2>
+          <FormInput
+            v-model="profile.oldPassword"
+            type="password"
+            label="Eski Şifre"
+            id="oldPassword"
+            autocomplete="current-password"
+            :disabled="!isEditing" />
+          <FormInput
+            v-model="profile.newPassword"
+            type="password"
+            label="Yeni Şifre"
+            id="newPassword"
+            autocomplete="new-password"
+            :disabled="!isEditing" />
 
           <div class="form-actions" v-if="isEditing">
             <button
