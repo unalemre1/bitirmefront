@@ -12,6 +12,7 @@ import AboutView from '../views/AboutView.vue'
 import SubscriptionView from '../views/SubscriptionView.vue'
 import CheckoutView from '../views/CheckoutView.vue'
 import ProfileView from '../views/ProfileView.vue'
+import ForgotPasswordPage from '../views/ForgotPassword.vue' // <-- Yeni eklenen import
 
 const routes: RouteRecordRaw[] = [
   {
@@ -54,6 +55,11 @@ const routes: RouteRecordRaw[] = [
     path: '/login',
     name: 'Login',
     component: LoginView
+  },
+  {
+    path: '/forgot-password', // <-- Yeni eklenen rota
+    name: 'ForgotPassword',
+    component: ForgotPasswordPage
   },
   {
     path: '/chat',
@@ -99,7 +105,7 @@ const router = createRouter({
 // Navigation guard for protected routes
 router.beforeEach(async (to, from, next) => {
   const token = localStorage.getItem('token')
-  
+
   if (to.meta.requiresAuth) {
     if (!token) {
       next('/login')
@@ -127,8 +133,8 @@ router.beforeEach(async (to, from, next) => {
       return
     }
   } else {
-    // If user is authenticated and tries to access login/signup pages
-    if (token && (to.path === '/login' || to.path === '/signup')) {
+    // If user is authenticated and tries to access login/signup/forgot-password pages
+    if (token && (to.path === '/login' || to.path === '/signup' || to.path === '/forgot-password')) { // <-- Değişiklik burada
       next('/dashboard')
       return
     }
