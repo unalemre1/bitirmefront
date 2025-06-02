@@ -155,6 +155,24 @@ onMounted(() => {
             :disabled="!isEditing"
           />
 
+          <hr class="section-divider">
+          <h2 class="section-title">Şifre Değişikliği</h2>
+          <FormInput
+            v-model="profile.oldPassword"
+            type="password"
+            label="Eski Şifre"
+            id="oldPassword"
+            autocomplete="current-password"
+            :disabled="!isEditing"
+          />
+          <FormInput
+            v-model="profile.newPassword"
+            type="password"
+            label="Yeni Şifre"
+            id="newPassword"
+            autocomplete="new-password"
+            :disabled="!isEditing"
+          />
           <div class="user-type">
             <label>Hesap Türü</label>
             <div class="type-badge" :class="profile.userType">
@@ -170,23 +188,6 @@ onMounted(() => {
             id="profileBaroNo"
             :disabled="!isEditing"
           />
-
-          <hr class="section-divider">
-          <h2 class="section-title">Şifre Değişikliği</h2>
-          <FormInput
-            v-model="profile.oldPassword"
-            type="password"
-            label="Eski Şifre"
-            id="oldPassword"
-            autocomplete="current-password"
-            :disabled="!isEditing" />
-          <FormInput
-            v-model="profile.newPassword"
-            type="password"
-            label="Yeni Şifre"
-            id="newPassword"
-            autocomplete="new-password"
-            :disabled="!isEditing" />
 
           <div class="form-actions" v-if="isEditing">
             <button
