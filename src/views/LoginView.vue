@@ -21,6 +21,7 @@ useTitle('Giriş Yap | LexAI')
           <LoginForm />
           <div class="card-footer">
             <p>Hesabınız yok mu? <router-link to="/signup" class="signup-link">Hesap Oluştur</router-link></p>
+            <p><router-link to="/forgot-password" class="forgot-password-link">Şifremi Unuttum</router-link></p>
           </div>
         </div>
       </div>
@@ -101,14 +102,18 @@ h2 {
   color: var(--text-color);
 }
 
-.signup-link {
+.signup-link,
+.forgot-password-link { /* Apply similar styling to both links */
   color: var(--primary-color);
   text-decoration: none;
   font-weight: 600;
   transition: color 0.3s ease;
+  display: block; /* Make it a block element for better spacing */
+  margin-top: 0.5rem; /* Add some spacing between the links */
 }
 
-.signup-link:hover {
+.signup-link:hover,
+.forgot-password-link:hover {
   color: var(--primary-hover);
 }
 
