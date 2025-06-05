@@ -175,9 +175,10 @@ const navigateToSignup = () => router.push('/signup')
 }
 
 .btn-outline {
-  background: none;
+  background: transparent;
   border: 2px solid white;
   color: white;
+  text-decoration: none;
 }
 
 .btn-outline:hover {
