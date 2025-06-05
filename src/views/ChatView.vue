@@ -5,47 +5,64 @@ import axios from 'axios'
 
 useTitle('AI Chat | LexAI')
 
-// -------------------------
-// 1) State / Reaktif Değişkenler
-// -------------------------
-const conversations = ref<Array<{
-  conversation_id: number
-  created_at: string
-  messages: Array<{ id: number; sender: 'user' | 'assistant'; content: string; timestamp: string }>
-}>>([])
-
-const activeConversationId = ref<number | null>(null)
-const messages = ref<Array<{ role: 'user' | 'assistant'; content: string }>>([])
-
+const messages = ref<Array<{ role: 'user' | 'assistant', content: string }>>([
+  { role: 'assistant', content: 'Merhaba! Size nasıl yardımcı olabilirim?' }
+])
 const newMessage = ref('')
 const chatContainer = ref<HTMLDivElement | null>(null)
 
 const showSidebar = ref(false)
-const uploadedFiles = ref<File[]>([])
-const fileInput = ref<HTMLInputElement | null>(null)
+const uploadedFiles = ref<File[]>([]) // Yüklenen dosyaları tutmak için yeni ref
+const fileInput = ref<HTMLInputElement | null>(null) // Dosya input elemanına referans
 
-// -------------------------
-// 2) API URL’leri
-// -------------------------
-const BASE_URL = 'http://localhost:3000'  // Kendi backend ana URL’iniz
-const API_CHAT_NEW = `${BASE_URL}/chat/history/new`
-const API_CHAT_SEND = (convId: number) => `${BASE_URL}/chat/history/${convId}/send`
-const API_CHAT_HISTORY = `${BASE_URL}/chat/history/`
-const API_CHAT_HISTORY_LAST_THREE = `${BASE_URL}/chat/history/last-three`
-const API_CHAT_DELETE = (convId: number) => `${BASE_URL}/chat/history/${convId}`; // New: API endpoint for deleting a conversation
-const API_CHAT_ASK = `${BASE_URL}/api/ask`; // Added missing API_CHAT_ASK
+const API_URL = 'http://localhost:3000/api/ask' // Burayı kendi backend URL'inizle değiştirin!
 
-// -------------------------
-// 3) JWT’den Auth Header Alma
-// -------------------------
-const getAuthHeaders = () => {
-  const token = localStorage.getItem('access_token') || ''
-  return { Authorization: `Bearer ${token}` }
+const sendMessage = async () => {
+  if (!newMessage.value.trim() && uploadedFiles.value.length === 0) return
+
+  const userMessageContent = newMessage.value
+  messages.value.push({
+    role: 'user',
+    content: userMessageContent || 'Dosya(lar) yüklendi.' // Eğer sadece dosya yüklendiyse bu mesaj gösterilir
+  })
+
+  newMessage.value = ''
+
+  messages.value.push({
+    role: 'assistant',
+    content: 'Yapay zeka yanıtı bekleniyor...'
+  })
+  scrollToBottom()
+
+  try {
+    const formData = new FormData()
+    formData.append('question', userMessageContent)
+    uploadedFiles.value.forEach(file => {
+      formData.append('files', file) // Her dosyayı 'files' adıyla ekliyoruz
+    })
+
+    const response = await axios.post(API_URL, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data' // Dosya yüklerken bu header gerekli
+      }
+    })
+
+    messages.value[messages.value.length - 1] = {
+      role: 'assistant',
+      content: response.data.answer || 'Yanıt alınamadı.'
+    }
+    uploadedFiles.value = [] // Yanıt alındıktan sonra yüklenen dosyaları temizle
+  } catch (error) {
+    console.error('Mesaj gönderirken hata oluştu:', error)
+    messages.value[messages.value.length - 1] = {
+      role: 'assistant',
+      content: 'Üzgünüm, bir hata oluştu. Lütfen tekrar deneyin.'
+    }
+  } finally {
+    scrollToBottom()
+  }
 }
 
-// -------------------------
-// 4) Yardımcı Fonksiyonlar
-// -------------------------
 const scrollToBottom = () => {
   setTimeout(() => {
     if (chatContainer.value) {
@@ -54,213 +71,22 @@ const scrollToBottom = () => {
   }, 100)
 }
 
-// -------------------------
-// 5) Tüm Conversation’ları Çek
-// -------------------------
-const fetchAllConversations = async () => {
-  try {
-    const res = await axios.get(API_CHAT_HISTORY, {
-      headers: getAuthHeaders()
-    })
-    conversations.value = res.data
-    if (conversations.value.length > 0 && activeConversationId.value === null) {
-      selectConversation(conversations.value[0].conversation_id)
-    }
-  } catch (err) {
-    console.error('Konuşma geçmişi alınırken hata:', err)
-  }
+const toggleSidebar = () => {
+  showSidebar.value = !showSidebar.value
 }
 
-// -------------------------
-// 6) Bir Conversation’ı Seçmek
-// -------------------------
-const selectConversation = (convId: number) => {
-  activeConversationId.value = convId
-
-  const found = conversations.value.find(c => c.conversation_id === convId)
-  if (found) {
-    messages.value = found.messages.map(m => ({
-      role: m.sender,
-      content: m.content
-    }))
-    scrollToBottom()
-    return
-  }
-  // Eğer bulunamazsa (örneğin henüz eklenmediyse) listeyi yeniden çek:
-  fetchAllConversations()
+const closeSidebar = () => {
+  showSidebar.value = false
 }
 
-// -------------------------
-// 7) Yeni Conversation Oluşturmak
-// -------------------------
-const createNewConversation = async () => {
-  try {
-    const res = await axios.post(API_CHAT_NEW, null, {
-      headers: getAuthHeaders()
-    })
-    const newConvId = res.data.conversation_id
-    const newConvCreatedAt = res.data.created_at
-
-    conversations.value.unshift({
-      conversation_id: newConvId,
-      created_at: newConvCreatedAt,
-      messages: []
-    })
-    selectConversation(newConvId)
-  } catch (err) {
-    console.error('Yeni konuşma oluşturulamadı:', err)
-  }
-}
-
-// -------------------------
-// 8) Mesaj Gönderme Mantığı (Kullanıcı → DB, AI → /api/ask → DB)
-// -------------------------
-const sendMessage = async () => {
-  if (!newMessage.value.trim() && uploadedFiles.value.length === 0) return
-  if (activeConversationId.value === null) {
-    alert('Lütfen önce bir konuşma seçin veya yeni sohbet başlatın.')
-    return
-  }
-
-  const convId = activeConversationId.value
-
-  // Store the user message content before clearing newMessage.value
-  const questionText = newMessage.value;
-
-  // 8.1) Kullanıcı Mesajını Ekrana Ekleyelim (Optimistic UI)
-  messages.value.push({
-    role: 'user',
-    content: questionText || 'Dosya(lar) yüklendi.'
-  })
-  scrollToBottom()
-
-  // 8.2) "user" Mesajını Database’e Kaydet (/chat/{id}/send)
-  try {
-    const formDataUser = new FormData()
-    formDataUser.append('sender', 'user')
-    formDataUser.append('content', questionText) // Use questionText here
-
-    // Eğer dosya yüklenmişse ekleyin
-    uploadedFiles.value.forEach(file => {
-      formDataUser.append('files', file)
-    })
-
-    await axios.post(API_CHAT_SEND(convId), formDataUser, {
-      headers: {
-        ...getAuthHeaders(),
-        'Content-Type': 'multipart/form-data'
-      }
-    })
-
-    // Gönderildi → inputu temizleyelim
-    newMessage.value = ''
-    uploadedFiles.value = []
-  } catch (err) {
-    console.error('Kullanıcı mesajı kaydedilemedi:', err)
-    messages.value.push({
-      role: 'assistant',
-      content: 'Mesajınız kaydedilemedi. Lütfen tekrar deneyin.'
-    })
-    scrollToBottom()
-    return
-  }
-
-  // 8.3) AI Modelinden Cevabı Almak İçin
-  let aiAnswer = ''
-  try {
-    // --- Yeni Hali (Sizin POST /chat/ask ile JSON bekleyen endpoint’e uygun): ---
-    const askPayload = {
-      question: questionText // 8.2’de kaydedip, questionText’e aldığımız kullanıcı mesajı
-    }
-    const aiRes = await axios.post(API_CHAT_ASK, askPayload, {
-      headers: {
-        ...getAuthHeaders(),
-        'Content-Type': 'application/json'
-      }
-    })
-    aiAnswer = aiRes.data.answer || 'Yanıt alınamadı.'
-
-    // Arayüze ekleyelim
-    messages.value.push({
-      role: 'assistant',
-      content: aiAnswer
-    })
-    scrollToBottom()
-  } catch (err) {
-    console.error('AI cevabı alınamadı:', err)
-    aiAnswer = 'Üzgünüm, bir hata oluştu. Lütfen tekrar deneyin.'
-    messages.value.push({
-      role: 'assistant',
-      content: aiAnswer
-    })
-    scrollToBottom()
-  }
-
-  // 8.4) AI Cevabını Da Database’e Kaydet (/chat/{id}/send) – sender="assistant"
-  try {
-    if (aiAnswer) {
-      const formDataAI = new FormData()
-      formDataAI.append('sender', 'assistant')
-      formDataAI.append('content', aiAnswer)
-
-      await axios.post(API_CHAT_SEND(convId), formDataAI, {
-        headers: getAuthHeaders()
-      })
-
-      // İlgili conversation objesini güncelleyelim (conversations dizisinde)
-      const idx = conversations.value.findIndex(c => c.conversation_id === convId)
-      if (idx !== -1) {
-        conversations.value[idx].messages.push({
-          id: Date.now(), // Use a temporary ID if not provided by API
-          sender: 'assistant',
-          content: aiAnswer,
-          timestamp: new Date().toISOString()
-        })
-      }
-    }
-  } catch (err) {
-    console.error('AI cevabı veritabanına kaydedilemedi:', err)
-  }
-}
-
-// -------------------------
-// New: 9) Konuşma Silme Fonksiyonu
-// -------------------------
-const deleteConversation = async (convId: number) => {
-  if (confirm('Bu konuşmayı silmek istediğinizden emin misiniz?')) {
-    try {
-      await axios.delete(API_CHAT_DELETE(convId), {
-        headers: getAuthHeaders()
-      })
-      // Remove from UI
-      conversations.value = conversations.value.filter(c => c.conversation_id !== convId)
-
-      // If the deleted conversation was the active one, select a new one or clear messages
-      if (activeConversationId.value === convId) {
-        if (conversations.value.length > 0) {
-          selectConversation(conversations.value[0].conversation_id)
-        } else {
-          activeConversationId.value = null
-          messages.value = []
-        }
-      }
-      console.log(`Konuşma ${convId} başarıyla silindi.`)
-    } catch (err) {
-      console.error('Konuşma silinirken hata:', err)
-      alert('Konuşma silinirken bir hata oluştu. Lütfen tekrar deneyin.')
-    }
-  }
-}
-
-// -------------------------
-// 10) Dosya Yükleme Fonksiyonları
-// -------------------------
 const handleFileUpload = (event: Event) => {
   const target = event.target as HTMLInputElement
   if (target.files) {
-    const newFiles = Array.from(target.files).filter(file => file.type === 'application/pdf')
-    uploadedFiles.value.push(...newFiles)
-    target.value = ''
+    // Sadece PDF dosyalarını filtrele
+    const newFiles = Array.from(target.files).filter(file => file.type === 'application/pdf');
+    uploadedFiles.value.push(...newFiles);
+    // Dosya inputunu sıfırla, böylece aynı dosyayı tekrar seçince change eventi tetiklenir
+    target.value = ''; 
   }
 }
 
@@ -269,14 +95,10 @@ const triggerFileInput = () => {
 }
 
 const removeFile = (index: number) => {
-  uploadedFiles.value.splice(index, 1)
+  uploadedFiles.value.splice(index, 1);
 }
 
-// -------------------------
-// 11) Component Yüklendiğinde
-// -------------------------
 onMounted(() => {
-  fetchAllConversations()
   scrollToBottom()
 })
 </script>
@@ -286,30 +108,23 @@ onMounted(() => {
     <aside class="chat-sidebar" :class="{ 'show-desktop': showSidebar, 'show-mobile': showSidebar }">
       <div class="sidebar-header">
         <h2>Sohbetler</h2>
-        <button class="close-sidebar-mobile-button" @click="showSidebar = false">
+        <button class="close-sidebar-mobile-button" @click="closeSidebar">
           <i class="bi bi-x-lg"></i>
         </button>
       </div>
       <div class="sidebar-content">
-        <button class="new-chat-button" @click="createNewConversation">
+        <button class="new-chat-button">
           <i class="bi bi-plus-lg"></i>
           Yeni Sohbet
         </button>
-
         <div class="conversations-list">
-          <button
-            v-for="conv in conversations"
-            :key="conv.conversation_id"
-            @click="selectConversation(conv.conversation_id)"
-            class="conversation-item"
-            :class="{ active: conv.conversation_id === activeConversationId }"
-          >
+          <button class="conversation-item active">
             <i class="bi bi-chat-left-text"></i>
-            <span>Konuşma #{{ conv.conversation_id }}</span>
-            <small class="created-at">{{ new Date(conv.created_at).toLocaleString('tr-TR', { hour12: false }) }}</small>
-            <button @click.stop="deleteConversation(conv.conversation_id)" class="delete-conversation-button">
-              <i class="bi bi-trash"></i>
-            </button>
+            <span>Mevcut Sohbet</span>
+          </button>
+          <button class="conversation-item">
+            <i class="bi bi-chat-left-text"></i>
+            <span>Önceki Sohbet 1</span>
           </button>
         </div>
       </div>
@@ -318,13 +133,13 @@ onMounted(() => {
     <div
       class="sidebar-overlay"
       :class="{ 'show-mobile': showSidebar }"
-      @click="showSidebar = false"
+      @click="closeSidebar"
     ></div>
 
     <main class="chat-main" :class="{ 'shifted-desktop': showSidebar }">
       <header class="chat-header">
-        <button class="menu-toggle-button" @click="showSidebar = !showSidebar">
-          <i :class=" showSidebar ? 'bi bi-x-lg' : 'bi bi-list' "></i>
+        <button class="menu-toggle-button" @click="toggleSidebar">
+          <i :class="showSidebar ? 'bi bi-x-lg' : 'bi bi-list'"></i>
         </button>
         <div class="header-content">
           <h1>LexAI Chat</h1>
@@ -339,7 +154,7 @@ onMounted(() => {
           :class="message.role"
         >
           <div class="message-avatar">
-            <i :class=" message.role === 'assistant' ? 'bi bi-robot' : 'bi bi-person' "></i>
+            <i :class="message.role === 'assistant' ? 'bi bi-robot' : 'bi bi-person'"></i>
           </div>
           <div class="message-bubble">
             {{ message.content }}
@@ -377,11 +192,7 @@ onMounted(() => {
             placeholder="Mesajınızı yazın..."
             class="message-input"
           />
-          <button
-            type="submit"
-            class="send-button"
-            :disabled="!newMessage.trim() && uploadedFiles.length === 0"
-          >
+          <button type="submit" class="send-button" :disabled="!newMessage.trim() && uploadedFiles.length === 0">
             <i class="bi bi-send"></i>
           </button>
         </form>
@@ -519,7 +330,6 @@ onMounted(() => {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  position: relative; /* Needed for positioning the delete button */
 }
 
 .conversation-item i {
@@ -832,47 +642,5 @@ onMounted(() => {
   .uploaded-files-preview {
     justify-content: center; /* Mobil görünümde ortala */
   }
-}
-
-/* Style for the new delete button */
-.delete-conversation-button {
-  background: none;
-  border: none;
-  color: var(--text-color);
-  font-size: 1rem;
-  cursor: pointer;
-  margin-left: auto; /* Push to the right */
-  padding: 0.2rem;
-  border-radius: 50%;
-  transition: background-color 0.2s ease, color 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.delete-conversation-button:hover {
-  background-color: var(--hover-bg-color);
-  color: var(--error-color, red); /* Define an error-color variable or use red directly */
-}
-
-/* Adjust layout for conversation item when delete button is present */
-.conversation-item span {
-  flex-grow: 1; /* Allow the span to take available space */
-  margin-right: 0.5rem; /* Add some space before the delete button */
-}
-
-.conversation-item small.created-at {
-    font-size: 0.75rem; /* Adjust font size for date */
-    opacity: 0.7; /* Make it slightly transparent */
-    margin-right: 0.5rem; /* Add some space before the delete button */
-}
-
-.conversation-item.active .delete-conversation-button {
-  color: white; /* Make the trash icon white when active */
-}
-
-.conversation-item.active .delete-conversation-button:hover {
-  background-color: rgba(255, 255, 255, 0.2); /* Lighter hover for active state */
-  color: white; /* Keep color white on hover for active state */
 }
 </style>
