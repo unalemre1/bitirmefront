@@ -41,7 +41,7 @@ watch(() => formData.value, (newData) => {
   const passwordError = validators.minLength(6)(newData.password)
   if (passwordError !== true) errors.value.password = passwordError
 
-  // Added password confirmation validation
+  // Şifre onaylama doğrulaması eklendi
   if (newData.password !== newData.password_confirm) {
     errors.value.password_confirm = 'Şifreler uyuşmuyor'
   } else if (!newData.password_confirm) {
@@ -59,12 +59,11 @@ watch(() => formData.value, (newData) => {
 }, { deep: true })
 
 const handleSubmit = async () => {
-  // Re-run validation just before submission to catch any last-minute changes
-  // and ensure all errors are set, specifically the password_confirm one if needed
+  // Göndermeden önce son bir doğrulama kontrolü
   if (formData.value.password !== formData.value.password_confirm) {
     errors.value.password_confirm = 'Şifreler uyuşmuyor'
   } else {
-    // Clear error if they match
+    // Eşleşiyorsa hatayı temizle
     delete errors.value.password_confirm;
   }
 
@@ -350,4 +349,4 @@ const handleSubmit = async () => {
     flex-direction: column;
   }
 }
-</script>
+</style>
