@@ -42,28 +42,34 @@ export const authApi = {
       formData.append('surname', credentials.surname);
       formData.append('email', credentials.email);
       formData.append('password', credentials.password);
-      formData.append('password_confirm', credentials.password_confirm); // 👈 Şifre onayı
-      formData.append('user_type', credentials.userType); // 👈 Eksikse hata olabilir
+      formData.append('password_confirm', credentials.password_confirm);
+
+      // Buradan 'user_type' form alanı gönderimini kaldırdık.
+      // Backend, kullanıcı tipini endpoint URL'si üzerinden belirliyor.
 
       if (credentials.userType === 'lawyer') {
-        if (credentials.baro_sicil_no)
+        if (credentials.baro_sicil_no) {
           formData.append('baro_sicil_no', credentials.baro_sicil_no);
-        if (credentials.idCardPhoto)
-          formData.append('id_card_photo', credentials.idCardPhoto); // 👈 'photo' yerine bu
+        }
+        if (credentials.idCardPhoto) {
+          // Backend'in beklediği parametre adı 'photo' olduğu için burada 'photo' kullandık.
+          formData.append('photo', credentials.idCardPhoto); 
+        }
       }
       
+      // Kullanıcı tipine göre doğru API endpoint'ini seçiyoruz.
       const endpoint = credentials.userType === 'lawyer'
-        ? '/auth/signup'
-        : '/person/signup';
+        ? '/auth/signup'   // Avukat kaydı için
+        : '/person/signup'; // Normal kullanıcı kaydı için
 
-      // 🧪 Debug: FormData içeriği
+      // 🧪 Debug: Giden FormData içeriği
       console.log('🧪 Giden form verisi:');
       for (const [key, value] of formData.entries()) {
         console.log(`${key}:`, value);
       }
 
       const { data } = await axios.post<AuthResponse>(endpoint, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+        headers: { 'Content-Type': 'multipart/form-data' }, // FormData gönderirken bu header kritik
       });
 
       console.log('Signup API response received ✅');
