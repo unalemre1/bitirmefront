@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useTitle } from '@vueuse/core'
-import FooterComponent from '../components/footer/FooterComponent.vue' // Footer bileşeninizin yolu
+import FooterComponent from '../components/footer/FooterComponent.vue'
+import axios from 'axios' // Axios'u import ediyoruz
+import { useRouter } from 'vue-router' // Yönlendirme için
 
 useTitle('Şifremi Unuttum | LexAI')
 
@@ -9,28 +11,52 @@ const email = ref('')
 const message = ref('')
 const error = ref('')
 const isLoading = ref(false)
+const router = useRouter()
+
+// **ÖNEMLİ:** Backend API'nizin temel URL'ini buraya yazın.
+// Geliştirmede genellikle 'http://localhost:3000' veya backend'inizin çalıştığı port olur.
+// Üretimde gerçek domaininiz olmalıdır: 'https://api.lexai.com'
+const API_BASE_URL = 'http://localhost:3000' // Kendi backend adresinize göre değiştirin!
 
 const handleForgotPassword = async () => {
-  error.value = ''
-  message.value = ''
-  isLoading.value = true
+  error.value = '' // Önceki hataları temizle
+  message.value = '' // Önceki mesajları temizle
+  isLoading.value = true // Yükleniyor durumunu aktif et
 
-  // Burada e-posta doğrulama ve API çağrısı yapılmalı
-  // Gerçek bir uygulamada bu kısım backend API'nize bir POST isteği gönderecektir.
-  try {
-    // Örnek bir gecikme ve başarı/hata simülasyonu
-    await new Promise(resolve => setTimeout(resolve, 1500))
-
-    if (email.value === 'test@example.com') { // Bu sadece bir simülasyon
-      message.value = 'Şifre sıfırlama talimatları e-posta adresinize gönderildi.'
-    } else {
-      error.value = 'Bu e-posta adresine kayıtlı bir hesap bulunamadı.'
-    }
-  } catch (err) {
-    console.error('Şifre sıfırlama hatası:', err)
-    error.value = 'Şifre sıfırlama isteği gönderilirken bir sorun oluştu. Lütfen tekrar deneyin.'
-  } finally {
+  // Basit frontend doğrulama
+  if (!email.value || !email.value.includes('@') || !email.value.includes('.')) {
+    error.value = 'Lütfen geçerli bir e-posta adresi girin.'
     isLoading.value = false
+    return
+  }
+
+  try {
+    const response = await axios.post(`${API_BASE_URL}/api/forgot-password`, {
+      email: email.value
+    })
+
+    if (response.status === 200) {
+      // Backend'den gelen başarılı mesajı göster
+      message.value = response.data.message || 'Şifre sıfırlama talimatları e-posta adresinize gönderildi. Lütfen gelen kutunuzu kontrol edin.'
+      // İsteğe bağlı: Kullanıcıyı belirli bir süre sonra giriş sayfasına yönlendir
+      setTimeout(() => {
+        router.push('/login')
+      }, 5000) // 5 saniye sonra yönlendir
+    }
+  } catch (err: any) {
+    console.error('Şifre sıfırlama hatası:', err)
+    // Backend'den gelen spesifik hata mesajını göster
+    if (err.response && err.response.data && err.response.data.message) {
+      error.value = err.response.data.message
+    } else if (err.request) {
+      // Sunucuya ulaşılamazsa
+      error.value = 'Sunucuya ulaşılamadı. Lütfen internet bağlantınızı kontrol edin veya daha sonra tekrar deneyin.'
+    } else {
+      // Beklenmeyen diğer hatalar
+      error.value = 'Şifre sıfırlama isteği gönderilirken beklenmeyen bir hata oluştu. Lütfen tekrar deneyin.'
+    }
+  } finally {
+    isLoading.value = false // Yükleniyor durumunu kapat
   }
 }
 </script>
