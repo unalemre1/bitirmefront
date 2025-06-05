@@ -28,7 +28,7 @@ const handlePhotoChange = (event: Event) => {
 
 watch(() => formData.value, (newData) => {
   errors.value = {}
-  
+
   const nameError = validators.required(newData.name)
   if (nameError !== true) errors.value.name = nameError
 
@@ -41,10 +41,17 @@ watch(() => formData.value, (newData) => {
   const passwordError = validators.minLength(6)(newData.password)
   if (passwordError !== true) errors.value.password = passwordError
 
+  // Added password confirmation validation
+  if (newData.password !== newData.password_confirm) {
+    errors.value.password_confirm = 'Şifreler uyuşmuyor'
+  } else if (!newData.password_confirm) {
+    errors.value.password_confirm = 'Şifre onayı zorunludur'
+  }
+
   if (userType.value === 'lawyer') {
     const baroSicilError = validators.baroSicil(newData.baro_sicil_no)
     if (baroSicilError !== true) errors.value.baro_sicil_no = baroSicilError
-    
+
     if (!idCardPhoto.value) {
       errors.value.idCardPhoto = 'Kimlik kartı fotoğrafı zorunludur'
     }
@@ -52,6 +59,15 @@ watch(() => formData.value, (newData) => {
 }, { deep: true })
 
 const handleSubmit = async () => {
+  // Re-run validation just before submission to catch any last-minute changes
+  // and ensure all errors are set, specifically the password_confirm one if needed
+  if (formData.value.password !== formData.value.password_confirm) {
+    errors.value.password_confirm = 'Şifreler uyuşmuyor'
+  } else {
+    // Clear error if they match
+    delete errors.value.password_confirm;
+  }
+
   if (!isValid.value || !termsAccepted.value || isLoading.value) return
 
   const baseCredentials = {
@@ -59,7 +75,7 @@ const handleSubmit = async () => {
     surname: formData.value.surname,
     email: formData.value.email,
     password: formData.value.password,
-    password_confirm: formData.value.password_confirm, // ✅ BU SATIR ŞART
+    password_confirm: formData.value.password_confirm,
     userType: userType.value
   }
 
@@ -202,7 +218,7 @@ const handleSubmit = async () => {
     <button 
       type="submit" 
       class="btn btn-primary signup-button"
-      :disabled="!isValid || !termsAccepted || isLoading"
+      :disabled="!isValid || !termsAccepted || isLoading || (formData.password !== formData.password_confirm)"
     >
       <span v-if="isLoading" class="loading-spinner">
         <i class="bi bi-arrow-repeat"></i>
@@ -334,4 +350,4 @@ const handleSubmit = async () => {
     flex-direction: column;
   }
 }
-</style>
+</script>
