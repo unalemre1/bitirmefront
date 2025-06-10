@@ -12,6 +12,14 @@ export interface SignupCredentials {
   baro_sicil_no?: string;
   idCardPhoto?: File;
 }
+export interface UserProfile {
+  email: string;
+  name: string;
+  surname: string;
+  password: string;
+  userType: 'user' | 'lawyer';
+  baro_sicil_no?: string; // Sadece avukatlar için geçerli olabilir
+}
 
 export interface LoginCredentials {
   email: string;
@@ -23,7 +31,6 @@ export interface AuthResponse {
   token_type: string;
   user: string;
 }
-
 
 export interface BaseSignupCredentials {
   name: string;
