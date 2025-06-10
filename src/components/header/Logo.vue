@@ -1,21 +1,20 @@
 <script setup lang="ts">
-import { useRouter } from 'vue-router'
+// We don't need useRouter if we're not using the router object directly in <script setup>
+// import { useRouter } from 'vue-router'
 
-const router = useRouter()
+// const router = useRouter() // This line is no longer needed
 defineProps<{
   title: string
 }>()
 </script>
 
 <template>
-   <router-link 
-    to="/info" 
+  <router-link
+    to="/info"
     class="logo-link"
   >
-  <a class="logo-link">
     <h1 class="logo-text">{{ title }}</h1>
-  </a>
-     </router-link>
+  </router-link>
 </template>
 
 <style scoped>
