@@ -1,10 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
-// `props` değişkenini tanımlamadan doğrudan defineProps'ı çağırıyoruz.
-// Props değerleri (modelValue, id, label, infoText, termsContent)
-// şablonda doğrudan erişilebilir.
-defineProps<{
+const props = defineProps<{
   modelValue: boolean
   id: string
   label: string
@@ -12,8 +9,6 @@ defineProps<{
   termsContent: string
 }>()
 
-// `emit` değişkenini tanımlamadan doğrudan defineEmits'i çağırıyoruz.
-// `handleCheckboxChange` fonksiyonunda `emit`'e doğrudan erişebiliriz.
 const emit = defineEmits<{
   (e: 'update:modelValue', value: boolean): void
 }>()
@@ -24,10 +19,11 @@ const toggleModal = () => {
   showModal.value = !showModal.value
 }
 
+// Hataları gidermek için eklenen olay işleyici fonksiyonu
 const handleCheckboxChange = (event: Event) => {
   // event.target'ın bir HTMLInputElement olduğunu TypeScript'e bildiriyoruz
   if (event.target instanceof HTMLInputElement) {
-    emit('update:modelValue', event.target.checked); // `emit` fonksiyonuna doğrudan erişim
+    emit('update:modelValue', event.target.checked);
   }
 };
 </script>
@@ -35,7 +31,7 @@ const handleCheckboxChange = (event: Event) => {
 <template>
   <div class="terms-info">
     <p>
-      {{ infoText }} <-- props.infoText yerine doğrudan infoText
+      {{ infoText }}
       <button type="button" class="btn-link" @click="toggleModal">
         Daha fazla bilgi
       </button>
@@ -45,11 +41,11 @@ const handleCheckboxChange = (event: Event) => {
   <div class="terms-checkbox">
     <input
       type="checkbox"
-      :id="id" <-- props.id yerine doğrudan id
-      :checked="modelValue" <-- props.modelValue yerine doğrudan modelValue
+      :id="id"
+      :checked="modelValue"
       @change="handleCheckboxChange" />
-    <label :for="id"> <-- props.id yerine doğrudan id
-      {{ label }} <-- props.label yerine doğrudan label
+    <label :for="id">
+      {{ label }}
     </label>
   </div>
 
@@ -61,7 +57,7 @@ const handleCheckboxChange = (event: Event) => {
           <button type="button" class="close-button" @click="toggleModal">×</button>
         </header>
         <main class="modal-content">
-          <p>{{ termsContent }}</p> <-- props.termsContent yerine doğrudan termsContent
+          <p>{{ termsContent }}</p>
         </main>
         <footer class="modal-footer">
           <button type="button" class="btn-primary" @click="toggleModal">Tamam</button>
