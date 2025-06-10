@@ -12,7 +12,8 @@ import AboutView from '../views/AboutView.vue'
 import SubscriptionView from '../views/SubscriptionView.vue'
 import CheckoutView from '../views/CheckoutView.vue'
 import ProfileView from '../views/ProfileView.vue'
-import ForgotPasswordPage from '../views/ForgotPassword.vue' // <-- Yeni eklenen import
+import ForgotPasswordView from '../views/ForgotPassword.vue' // Önceki adımlarda bu isimle oluşturduğumuz varsayıldı
+import ResetPasswordView from '../views/ResetPasswordView.vue'// <-- YENİ EKLENEN IMPORT
 
 const routes: RouteRecordRaw[] = [
   {
@@ -57,9 +58,16 @@ const routes: RouteRecordRaw[] = [
     component: LoginView
   },
   {
-    path: '/forgot-password', // <-- Yeni eklenen rota
+    path: '/forgot-password',
     name: 'ForgotPassword',
-    component: ForgotPasswordPage
+    component: ForgotPasswordView // `ForgotPasswordPage` yerine `ForgotPasswordView` kullanıldı
+  },
+  {
+    path: '/reset-password', // <-- YENİ EKLENEN ROTA
+    name: 'ResetPassword',
+    component: ResetPasswordView
+    // `token` ve `email` query parametreleri zaten `useRoute` içinde alındığı için
+    // burada `props: true` eklemenize gerek yok.
   },
   {
     path: '/chat',
@@ -133,8 +141,8 @@ router.beforeEach(async (to, from, next) => {
       return
     }
   } else {
-    // If user is authenticated and tries to access login/signup/forgot-password pages
-    if (token && (to.path === '/login' || to.path === '/signup' || to.path === '/forgot-password')) { // <-- Değişiklik burada
+    // If user is authenticated and tries to access login/signup/forgot-password/reset-password pages
+    if (token && (to.path === '/login' || to.path === '/signup' || to.path === '/forgot-password' || to.path === '/reset-password')) { // <-- Değişiklik burada
       next('/dashboard')
       return
     }

@@ -3,6 +3,12 @@ import SignupForm from '../components/SignupForm.vue'
 import FooterComponent from '../components/footer/FooterComponent.vue'
 import { useTitle } from '@vueuse/core'
 
+// Corrected paths for form components
+import FormInput from "../components/form/FormInput.vue";
+import PasswordInput from "../components/form/PasswordInput.vue";
+import BaroSicilInput from "../components/form/BaroSicilInput.vue";
+import TermsCheckbox from "../components/form/TermsCheckbox.vue";
+
 useTitle('Hesap Oluştur | LexAI')
 </script>
 
