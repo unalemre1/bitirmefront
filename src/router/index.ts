@@ -13,7 +13,11 @@ import SubscriptionView from '../views/SubscriptionView.vue'
 import CheckoutView from '../views/CheckoutView.vue'
 import ProfileView from '../views/ProfileView.vue'
 import ForgotPasswordView from '../views/ForgotPassword.vue' // Önceki adımlarda bu isimle oluşturduğumuz varsayıldı
+<<<<<<< HEAD
 import ResetPasswordView from '../views/ResetPasswordView.vue'// <-- YENİ EKLENEN IMPORT
+=======
+import ResetPasswordView from '../views/ResetPasswordView.vue' // <-- YENİ EKLENEN IMPORT
+>>>>>>> 6af3b7a2c7a5c95ec9b2c492b521c69012573463
 
 const routes: RouteRecordRaw[] = [
   {

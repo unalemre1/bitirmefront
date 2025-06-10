@@ -61,7 +61,11 @@ const handleResetPassword = async () => {
   // Daha fazla kural eklenebilir: büyük harf, küçük harf, rakam, özel karakter vb.
 
   try {
+<<<<<<< HEAD
     const response = await axios.post(`${API_BASE_URL}/auth/reset-password`, { // Backend endpoint'iniz
+=======
+    const response = await axios.post(`${API_BASE_URL}/api/reset-password`, { // Backend endpoint'iniz
+>>>>>>> 6af3b7a2c7a5c95ec9b2c492b521c69012573463
       token: token.value,
       email: email.value,
       newPassword: password.value,
