@@ -5,7 +5,10 @@ import { validatePassword } from '../../utils/passwordValidation'
 import PasswordStrengthBar from './PasswordStrengthBar.vue'
 import PasswordRequirements from './PasswordRequirements.vue'
 
-const props = defineProps<{
+// `props` değişkenini tanımlamadan doğrudan defineProps'ı çağırıyoruz.
+// Props değerleri (modelValue, label, id, placeholder, error, showToggle, showPassword)
+// şablonda ve script içindeki fonksiyonlarda doğrudan erişilebilir.
+defineProps<{
   modelValue: string
   label: string
   id: string
@@ -15,7 +18,9 @@ const props = defineProps<{
   showPassword?: boolean
 }>()
 
-const emit = defineEmits<{
+// `emit` değişkenini tanımlamadan doğrudan defineEmits'i çağırıyoruz.
+// `$emit` fonksiyonuna şablonda doğrudan erişebiliriz.
+defineEmits<{
   (e: 'update:modelValue', value: string): void
   (e: 'toggle-visibility'): void
 }>()
@@ -23,21 +28,24 @@ const emit = defineEmits<{
 const isFocused = ref(false)
 const showRequirements = ref(false)
 
-const inputType = computed(() => props.showPassword ? 'text' : 'password')
-const toggleIcon = computed(() => props.showPassword ? 'bi bi-eye-slash' : 'bi bi-eye')
-const strength = computed(() => calculatePasswordStrength(props.modelValue))
-const validation = computed(() => validatePassword(props.modelValue))
+// Props değerlerine doğrudan erişiyoruz (props.modelValue yerine modelValue)
+const inputType = computed(() => showPassword ? 'text' : 'password')
+const toggleIcon = computed(() => showPassword ? 'bi bi-eye-slash' : 'bi bi-eye')
+const strength = computed(() => calculatePasswordStrength(modelValue))
+const validation = computed(() => validatePassword(modelValue))
 
 const handleFocus = () => {
   isFocused.value = true
-  if (props.id === 'signupPassword') {
+  // props.id yerine doğrudan id
+  if (id === 'signupPassword') {
     showRequirements.value = true
   }
 }
 
 const handleBlur = () => {
   isFocused.value = false
-  if (!props.modelValue) {
+  // props.modelValue yerine doğrudan modelValue
+  if (!modelValue) {
     showRequirements.value = false
   }
 }
@@ -71,7 +79,6 @@ const handleBlur = () => {
       <div class="input-highlight"></div>
     </div>
     
-    <!-- Password Requirements -->
     <transition name="fade">
       <PasswordRequirements
         v-if="id === 'signupPassword' && (showRequirements || modelValue)"
@@ -80,7 +87,6 @@ const handleBlur = () => {
       />
     </transition>
 
-    <!-- Password Strength Bar -->
     <PasswordStrengthBar 
       v-if="modelValue && showToggle && id === 'signupPassword'"
       :strength="strength"
