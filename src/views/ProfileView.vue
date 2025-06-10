@@ -4,12 +4,11 @@ import { useTitle } from '@vueuse/core'
 import FooterComponent from '../components/footer/FooterComponent.vue'
 import FormInput from '../components/form/FormInput.vue'
 import { profileApi } from '../api/profile'
-import type { UserProfile, UserProfileWithPassword, UserType } from '../types/profile' // UserType'ı da import ettik
+// Düzeltildi: Tiplerin 'profile.ts' dosyasından geldiğini varsayarak yolu güncelledik.
+// Ayrıca 'UserProfile' doğrudan kullanılmadığı için import'tan kaldırıldı.
+import type { UserProfileWithPassword, UserType } from '../types/profile' 
 
 useTitle('Profilim | LexAI')
-
-// UserProfileWithPassword interface'i artık '../types/profile' dosyasından geliyor.
-// Burada tekrar tanımlamaya gerek yok, sadece import ediyoruz.
 
 const profile = ref<UserProfileWithPassword>({
   // Tüm UserProfile alanlarını ve ek olarak password alanlarını doğru tiplerle initialize edin
