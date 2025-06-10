@@ -1,9 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
-// `props` değişkenini tanımlamadan doğrudan defineProps'ı çağırıyoruz.
-// Props değerleri şablonda ve handleInput içinde doğrudan erişilebilir.
-defineProps<{
+const props = defineProps<{
   modelValue: string
   label: string
   id: string
@@ -11,8 +9,6 @@ defineProps<{
   error?: string
 }>()
 
-// `emit` değişkenini tanımlamadan doğrudan defineEmits'i çağırıyoruz.
-// `handleInput` içinde `emit` fonksiyonuna doğrudan erişebiliriz.
 const emit = defineEmits<{
   (e: 'update:modelValue', value: string): void
 }>()
@@ -21,9 +17,9 @@ const isFocused = ref(false)
 
 const handleInput = (event: Event) => {
   const input = event.target as HTMLInputElement
-  // Yalnızca sayıları kabul et ve 5 hane ile sınırla
+  // Only allow numbers and limit to 5 digits
   let value = input.value.replace(/\D/g, '').slice(0, 5)
-  emit('update:modelValue', value) // `emit` fonksiyonuna doğrudan erişim
+  emit('update:modelValue', value)
 }
 </script>
 
@@ -39,16 +35,16 @@ const handleInput = (event: Event) => {
         :id="id"
         class="form-control"
         :class="{ 'is-invalid': error }"
-        :value="modelValue"  <-- props.modelValue yerine doğrudan modelValue
+        :value="modelValue"
         @input="handleInput"
         @focus="isFocused = true"
         @blur="isFocused = false"
-        :placeholder="placeholder" <-- props.placeholder yerine doğrudan placeholder
+        :placeholder="placeholder"
       />
       <div class="input-highlight"></div>
     </div>
     <transition name="fade">
-      <div v-if="error" class="error-message"> <-- props.error yerine doğrudan error
+      <div v-if="error" class="error-message">
         {{ error }}
       </div>
     </transition>
