@@ -11,17 +11,17 @@ import type { UserProfileWithPassword, UserType } from '../types/profile'
 useTitle('Profilim | LexAI')
 
 const profile = ref<UserProfileWithPassword>({
-  // Tüm UserProfile alanlarını ve ek olarak password alanlarını doğru tiplerle initialize edin
-  id: '', // Eğer UserProfile'da id varsa initialize edin
+  id: '',
   name: '',
   surname: '',
   email: '',
-  userType: 'user' as UserType, // userType'ı UserType tipine göre initialize edin
-  baro_sicil_no: undefined, // Opsiyonel olduğu için undefined veya boş string olarak initialize edin
+  userType: 'user' as UserType,
+  // ÖNEMLİ: baro_sicil_no'yu undefined yerine boş string ile başlatın
+  baro_sicil_no: '',
   oldPassword: '',
   newPassword: ''
 })
-
+  
 const isEditing = ref(false)
 const isSaving = ref(false)
 const error = ref<string | null>(null)
