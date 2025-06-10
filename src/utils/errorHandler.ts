@@ -1,6 +1,6 @@
 import type { AxiosError } from 'axios';
 import axios from 'axios';
-import type { ErrorResponse } from '../types/auth';
+import type { ErrorResponse } from '../types/auth'; // 'ErrorResponse' tipini '../types/auth' dosyasından alıyoruz
 
 // Hata tipini genişletiyoruz çünkü API yanıtı 'detail' özelliğini içerebilir.
 // Eğer API'nız 422 hataları için 'detail' içinde { msg: string, loc: string[], type: string }
@@ -11,8 +11,8 @@ interface ValidationErrorDetail {
   type: string;
 }
 
-// ErrorResponse'u güncellemeniz veya ErrorResponse'a ek olarak yeni bir tip oluşturmanız gerekebilir.
-// auth.ts dosyanızdaki ErrorResponse interface'ini şu şekilde güncellemeniz tavsiye edilir:
+// ÖNEMLİ: auth.ts dosyanızdaki ErrorResponse interface'ini aşağıdaki gibi güncellediğinizden emin olun:
+// Bu kısmı auth.ts dosyanıza eklemelisiniz.
 /*
 export interface ErrorResponse {
   message: string;
@@ -58,7 +58,8 @@ export function handleApiError(error: unknown): never {
         errorMessage += 'Lütfen girdiğiniz bilgileri kontrol edin.';
       }
 
-      throw new new ApiError(errorMessage, 422);
+      // Hata burada: 'new' kelimesi iki kez kullanılmıştı. Birini sildik.
+      throw new ApiError(errorMessage, 422);
     }
 
     // Diğer tüm hataları ele al
