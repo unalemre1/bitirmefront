@@ -14,7 +14,6 @@ import CheckoutView from '../views/CheckoutView.vue'
 import ProfileView from '../views/ProfileView.vue'
 import ForgotPasswordView from '../views/ForgotPassword.vue' // Önceki adımlarda bu isimle oluşturduğumuz varsayıldı
 import ResetPasswordView from '../views/ResetPasswordView.vue'// <-- YENİ EKLENEN IMPORT
-import ResetPasswordView from '../views/ResetPasswordView.vue' // <-- YENİ EKLENEN IMPORT
 
 const routes: RouteRecordRaw[] = [
   {
