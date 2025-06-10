@@ -6,7 +6,7 @@ import FormInput from '../components/form/FormInput.vue'
 import { profileApi } from '../api/profile'
 // Düzeltildi: Tiplerin 'profile.ts' dosyasından geldiğini varsayarak yolu güncelledik.
 // Ayrıca 'UserProfile' doğrudan kullanılmadığı için import'tan kaldırıldı.
-import type { UserProfileWithPassword, UserType } from '../types/auth' 
+import type { UserProfileWithPassword, UserType } from '../types/profile' 
 
 useTitle('Profilim | LexAI')
 
