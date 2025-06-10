@@ -1,12 +1,14 @@
 <script setup lang="ts">
-import { useRouter } from 'vue-router'
+// useRouter import'una artık ihtiyacımız yok
+// çünkü router nesnesini doğrudan kullanmıyoruz.
+// import { useRouter } from 'vue-router'
 
-const router = useRouter()
+// const router = useRouter() // Bu satır kaldırıldı
 </script>
 
 <template>
-  <router-link 
-    to="/about" 
+  <router-link
+    to="/about"
     class="about-btn"
   >
     <span>Hakkımızda</span>
