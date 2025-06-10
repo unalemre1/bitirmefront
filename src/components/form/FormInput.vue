@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
-const props = defineProps<{
+// `props` değişkenini tanımlamadan doğrudan defineProps'ı çağırıyoruz.
+// Props değerleri (modelValue, label, type, id, placeholder, error)
+// şablonda doğrudan erişilebilir.
+defineProps<{
   modelValue: string
   label: string
   type?: string
@@ -10,12 +13,15 @@ const props = defineProps<{
   error?: string
 }>()
 
-const emit = defineEmits<{
+// `emit` değişkenini tanımlamadan doğrudan defineEmits'i çağırıyoruz.
+// `$emit` fonksiyonuna şablonda doğrudan erişebiliriz.
+defineEmits<{
   (e: 'update:modelValue', value: string): void
 }>()
 
 const isFocused = ref(false)
 
+// Artık handleInput fonksiyonuna ihtiyacımız yok çünkü $emit'i doğrudan @input içinde kullanıyoruz.
 </script>
 
 <template>
