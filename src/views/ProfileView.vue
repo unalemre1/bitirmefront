@@ -4,29 +4,29 @@ import { useTitle } from '@vueuse/core'
 import FooterComponent from '../components/footer/FooterComponent.vue'
 import FormInput from '../components/form/FormInput.vue'
 import { profileApi } from '../api/profile'
-import type { UserProfile } from '../types/profile'
+import type { UserProfile, UserProfileWithPassword, UserType } from '../types/profile' // UserType'ı da import ettik
 
 useTitle('Profilim | LexAI')
 
-// Extend UserProfile type to include optional password fields for updates
-interface UserProfileWithPassword extends UserProfile {
-  oldPassword?: string;
-  newPassword?: string;
-}
+// UserProfileWithPassword interface'i artık '../types/profile' dosyasından geliyor.
+// Burada tekrar tanımlamaya gerek yok, sadece import ediyoruz.
 
 const profile = ref<UserProfileWithPassword>({
+  // Tüm UserProfile alanlarını ve ek olarak password alanlarını doğru tiplerle initialize edin
+  id: '', // Eğer UserProfile'da id varsa initialize edin
   name: '',
   surname: '',
   email: '',
-  userType: 'user',
-  oldPassword: '', // Initialize new fields
+  userType: 'user' as UserType, // userType'ı UserType tipine göre initialize edin
+  baro_sicil_no: undefined, // Opsiyonel olduğu için undefined veya boş string olarak initialize edin
+  oldPassword: '',
   newPassword: ''
 })
 
 const isEditing = ref(false)
 const isSaving = ref(false)
 const error = ref<string | null>(null)
-const successMessage = ref<string | null>(null) // To show success message for password change
+const successMessage = ref<string | null>(null)
 
 const toggleEdit = () => {
   isEditing.value = !isEditing.value
@@ -42,10 +42,14 @@ const toggleEdit = () => {
 const fetchProfile = async () => {
   try {
     const data = await profileApi.fetchProfile()
-    profile.value = { ...profile.value, ...data } // Merge fetched data
-  } catch (err) {
+    // Gelen veriyi doğrudan profile.value'ya atayabiliriz
+    // profile.value'nun zaten UserProfileWithPassword tipinde olduğu için
+    // id, name, surname, email, userType, baro_sicil_no doğrudan atanacak.
+    // oldPassword ve newPassword fetch işleminden gelmeyeceği için korunacak.
+    profile.value = { ...profile.value, ...data }; // Tüm UserProfile alanları doğru bir şekilde kopyalanır
+  } catch (err: any) { // Hata tipini any olarak belirtmek daha esneklik sağlar
     console.error('Error fetching profile:', err)
-    error.value = 'Profil bilgileri yüklenirken bir hata oluştu'
+    error.value = err.response?.data?.message || 'Profil bilgileri yüklenirken bir hata oluştu'
   }
 }
 
@@ -66,25 +70,33 @@ const saveProfile = async () => {
 
   try {
     isSaving.value = true
+    // Sadece güncellenecek alanları içeren bir obje oluşturun
     const updatedProfileData: Partial<UserProfileWithPassword> = {
       name: profile.value.name,
       surname: profile.value.surname,
       email: profile.value.email,
+      // userType ve baro_sicil_no normalde profili güncellerken değiştirilmez
+      // Eğer değiştirilebiliyorsa burada da dahil edilmeli.
+      // userType: profile.value.userType,
+      // baro_sicil_no: profile.value.baro_sicil_no,
     };
 
-    // Only include password fields if they are not empty (meaning user wants to change password)
+    // Yalnızca şifre alanları doluysa şifre güncelleme alanlarını ekle
     if (profile.value.oldPassword && profile.value.newPassword) {
       updatedProfileData.oldPassword = profile.value.oldPassword;
       updatedProfileData.newPassword = profile.value.newPassword;
     }
 
     const updatedProfile = await profileApi.updateProfile(updatedProfileData);
-    profile.value = { ...profile.value, ...updatedProfile }; // Update profile with returned data
+    // Gelen veriyi mevcut profile objesine merge et.
+    // Bu, API'den sadece güncellenen alanların gelmesi durumunda faydalıdır.
+    // Eğer API tüm profil objesini döndürüyorsa, doğrudan profile.value = updatedProfile; yapabilirsiniz.
+    profile.value = { ...profile.value, ...updatedProfile };
 
-    // Handle password change specific success
+    // Şifre değişikliği başarılıysa özel mesaj göster
     if (profile.value.oldPassword && profile.value.newPassword) {
       successMessage.value = 'Şifreniz başarıyla güncellendi.';
-      profile.value.oldPassword = ''; // Clear password fields after successful update
+      profile.value.oldPassword = ''; // Başarılı güncelleme sonrası şifre alanlarını temizle
       profile.value.newPassword = '';
     } else {
       successMessage.value = 'Profil bilgileriniz başarıyla güncellendi.';
@@ -93,7 +105,8 @@ const saveProfile = async () => {
     isEditing.value = false
   } catch (err: any) {
     console.error('Error saving profile:', err)
-    error.value = err.response?.data?.message || 'Profil güncellenirken bir hata oluştu';
+    // Hata nesnesinde response.data.message veya detail olabilir
+    error.value = err.response?.data?.message || err.response?.data?.detail || 'Profil güncellenirken bir hata oluştu';
   } finally {
     isSaving.value = false
   }
