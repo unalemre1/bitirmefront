@@ -31,11 +31,7 @@ const handleForgotPassword = async () => {
   }
 
   try {
-<<<<<<< HEAD
     const response = await axios.post(`${API_BASE_URL}/auth/forgot-password`, {
-=======
-    const response = await axios.post(`${API_BASE_URL}/api/forgot-password`, {
->>>>>>> 6af3b7a2c7a5c95ec9b2c492b521c69012573463
       email: email.value
     })
 
