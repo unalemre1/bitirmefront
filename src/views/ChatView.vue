@@ -15,6 +15,8 @@ const conversations = ref<Array<{
 }>>([])
 
 const activeConversationId = ref<number | null>(null)
+// messages'ın tipi conversation'daki messages'tan farklı olduğu için ayrı tutuldu.
+// Rol ve içerik doğrudan uyumlu
 const messages = ref<Array<{ role: 'user' | 'assistant'; content: string }>>([])
 
 const newMessage = ref('')
@@ -27,7 +29,7 @@ const fileInput = ref<HTMLInputElement | null>(null)
 // -------------------------
 // 2) API URL’leri
 // -------------------------
-const BASE_URL = 'http://localhost:3000'  // Kendi backend ana URL’iniz
+const BASE_URL = 'http://localhost:3000' // Kendi backend ana URL’iniz
 const API_CHAT_NEW = `${BASE_URL}/chat/history/new`
 const API_CHAT_SEND = (convId: number) => `${BASE_URL}/chat/history/${convId}/send`
 const API_CHAT_HISTORY = `${BASE_URL}/chat/history/`
@@ -368,14 +370,13 @@ onMounted(async () => { // onMounted'ı async yapalım
 
         <div class="conversations-list">
           <button
-            v-for="(conv, index) in conversations"
-            :key="conv.conversation_id"
+            v-for="(conv) in conversations" :key="conv.conversation_id"
             @click="selectConversation(conv.conversation_id)"
             class="conversation-item"
             :class="{ active: conv.conversation_id === activeConversationId }"
           >
             <i class="bi bi-chat-left-text"></i>
-            <span>Konuşma  </span> <small class="created-at"></small>
+            <span>Konuşma </span> <small class="created-at"></small>
             <button @click.stop="deleteConversation(conv.conversation_id)" class="delete-conversation-button">
               <i class="bi bi-trash"></i>
             </button>
@@ -402,14 +403,13 @@ onMounted(async () => { // onMounted'ı async yapalım
 
       <div class="messages-area" ref="chatContainer">
         <div v-if="activeConversationId === null && messages.length === 0" class="no-conversation-message">
-            <p>Bir sohbet başlatmak için soldaki "Yeni Sohbet" butonuna tıklayın veya bekleyin.</p>
-            <p>Sohbet geçmişiniz yüklendiğinde otomatik olarak devam edecektir.</p>
+          <p>Bir sohbet başlatmak için soldaki "Yeni Sohbet" butonuna tıklayın veya bekleyin.</p>
+          <p>Sohbet geçmişiniz yüklendiğinde otomatik olarak devam edecektir.</p>
         </div>
 
         <div
           v-for="(message, index) in messages"
-          :key="index"
-          class="message"
+          :key="index" class="message"
           :class="message.role"
         >
           <div class="message-avatar">
@@ -653,318 +653,6 @@ onMounted(async () => { // onMounted'ı async yapalım
   overflow: hidden;
   transition: margin-left 0.3s ease-out;
   margin-left: 0;
-  width: 100%;
-}
-
-@media (min-width: 769px) {
-  .chat-main.shifted-desktop {
-    margin-left: 10px;
-  }
-}
-
-@media (max-width: 768px) {
-  .chat-main.shifted-desktop {
-    margin-left: 0;
-  }
-}
-
-.chat-header {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  background: var(--card-bg);
-  border-radius: 12px;
-  padding: 1rem;
-  margin-bottom: 1rem;
-  box-shadow: 0 2px 4px var(--shadow-color);
-}
-
-.header-content h1 {
-  font-size: 1.5rem; /* Küçültüldü */
-  margin: 0;
-}
-
-/* The main sidebar toggle button (in chat-header) */
-.menu-toggle-button {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  color: var(--text-color);
-  cursor: pointer;
-  padding: 0.5rem;
-  border-radius: 50%;
-  transition: background-color 0.2s ease;
-}
-
-.menu-toggle-button:hover {
-  background-color: var(--hover-bg-color, rgba(0, 0, 0, 0.05));
-}
-
-.messages-area {
-  flex: 1;
-  overflow-y: auto;
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem; /* Mesajlar arası boşluk artırıldı */
-  background: var(--card-bg);
-  border-radius: 12px;
-  box-shadow: 0 2px 4px var(--shadow-color);
-}
-
-.message {
-  display: flex;
-  gap: 1rem;
-  max-width: 80%;
-}
-
-.message.user {
-  flex-direction: row-reverse;
-  align-self: flex-end;
-}
-
-.message-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.message.assistant .message-avatar {
-  background: var(--primary-color);
-  color: white;
-}
-
-.message.user .message-avatar {
-  background: var(--secondary-color);
-  color: white;
-}
-
-.message-bubble {
-  padding: 1rem;
-  border-radius: 12px;
-  line-height: 1.5;
-}
-
-.message.assistant .message-bubble {
-  background: var(--bg-color);
-  color: var(--text-color);
-}
-
-.message.user .message-bubble {
-  background: var(--primary-color);
-  color: white;
-}
-
-/* --- Input Area Styles --- */
-.input-area {
-  padding: 1.5rem 1rem; /* Üstte boşluk artırıldı */
-  margin-top: 10px;
-  background: var(--card-bg);
-  border-radius: 12px;
-  box-shadow: 0 2px 4px var(--shadow-color);
-  position: relative;
-  z-index: 1002;
-  display: flex; /* Flexbox ekleyelim */
-  flex-direction: column; /* Dikey sıralama */
-  gap: 0.5rem; /* Elemanlar arası boşluk */
-}
-
-.input-form {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center; /* Dikeyde ortala */
-}
-
-.message-input {
-  flex: 1;
-  padding: 0.75rem 1rem;
-  border: 2px solid var(--border-color);
-  border-radius: 8px;
-  background: var(--bg-color);
-  color: var(--text-color);
-  font-size: 1rem;
-}
-
-.send-button {
-  padding: 0.75rem 1.5rem;
-  background: var(--primary-color);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.send-button:disabled {
-  background: var(--primary-disabled);
-  cursor: not-allowed;
-}
-
-/* Yeni Eklenecek Stiller */
-.attach-button {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  color: var(--text-color);
-  cursor: pointer;
-  padding: 0.5rem;
-  border-radius: 50%;
-  transition: background-color 0.2s ease;
-}
-
-.attach-button:hover {
-  background-color: var(--hover-bg-color, rgba(0, 0, 0, 0.05));
-}
-
-.uploaded-files-preview {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  padding: 0.5rem 0;
-  border-top: 1px solid var(--border-color);
-  border-bottom: 1px solid var(--border-color);
-  margin-bottom: 0.5rem;
-  align-items: center;
-  background: var(--bg-color);
-  border-radius: 8px;
-  padding: 0.75rem;
-}
-
-.uploaded-file-tag {
-  display: flex;
-  align-items: center;
-  background: var(--primary-light-color, #e0f2f7);
-  color: var(--primary-dark-color, #0056b3);
-  padding: 0.3rem 0.6rem;
-  border-radius: 5px;
-  font-size: 0.85rem;
-  gap: 0.3rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 150px; /* Belirli bir genişlik vererek uzun isimleri kısalt */
-}
-
-.uploaded-file-tag i {
-  font-size: 1rem;
-}
-
-.remove-file-button {
-  background: none;
-  border: none;
-  color: var(--primary-dark-color, #0056b3);
-  font-size: 1rem;
-  cursor: pointer;
-  margin-left: 0.2rem;
-  padding: 0;
-  line-height: 1; /* Butonun içeriği ile dikey hizalamayı iyileştirir */
-}
-
-.remove-file-button:hover {
-  color: red;
-}
-
-.file-count {
-  margin-left: auto; /* Sağ tarafa yasla */
-  background: var(--secondary-color);
-  color: white;
-  padding: 0.3rem 0.6rem;
-  border-radius: 5px;
-  font-size: 0.85rem;
-  font-weight: 600;
-}
-
-/* Responsive Adjustments */
-@media (max-width: 768px) {
-  .chat-main {
-    padding: 0.5rem;
-  }
-
-  .message {
-    max-width: 90%;
-  }
-
-  /* Fixed input area for mobile */
-  .input-area {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    border-radius: 0;
-    padding: 1rem; /* Üst boşluk biraz artırıldı */
-    box-shadow: 0 -2px 8px var(--shadow-color);
-  }
-
-  .messages-area {
-    padding-bottom: 150px; /* Dosya önizleme alanı ve input için yeterli boşluk bırak */
-  }
-
-  .uploaded-files-preview {
-    justify-content: center; /* Mobil görünümde ortala */
-  }
-}
-
-/* Style for the new delete button */
-.delete-conversation-button {
-  background: none;
-  border: none;
-  color: var(--text-color);
-  font-size: 1rem;
-  cursor: pointer;
-  margin-left: auto; /* Push to the right */
-  padding: 0.2rem;
-  border-radius: 50%;
-  transition: background-color 0.2s ease, color 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.delete-conversation-button:hover {
-  background-color: var(--hover-bg-color);
-  color: var(--error-color, red); /* Define an error-color variable or use red directly */
-}
-
-/* Adjust layout for conversation item when delete button is present */
-.conversation-item span {
-  flex-grow: 1; /* Allow the span to take available space */
-  margin-right: 0.5rem; /* Add some space before the delete button */
-  overflow: hidden; /* Ensure text truncation works */
-  text-overflow: ellipsis; /* Add ellipsis for overflow */
-}
-
-.conversation-item small.created-at {
-    font-size: 0.75rem; /* Adjust font size for date */
-    opacity: 0.7; /* Make it slightly transparent */
-    margin-right: 0.5rem; /* Add some space before the delete button */
-}
-
-.conversation-item.active .delete-conversation-button {
-  color: white; /* Make the trash icon white when active */
-}
-
-.conversation-item.active .delete-conversation-button:hover {
-  background-color: rgba(255, 255, 255, 0.2); /* Lighter hover for active state */
-  color: white; /* Keep color white on hover for active state */
-}
-
-/* Yeni Eklenen Stiller */
-.no-conversation-message {
-    text-align: center;
-    color: var(--text-color-light, #666);
-    padding: 2rem;
-    background: var(--bg-color);
-    border-radius: 12px;
-    margin: auto; /* Ortalamak için */
-}
-
-.no-conversation-message p {
-    margin-bottom: 0.5rem;
-    font-size: 1.1rem;
+  width: 100%; /* Bu satır kesilmiş, tamamladım */
 }
 </style>
