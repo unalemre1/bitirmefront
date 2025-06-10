@@ -18,6 +18,14 @@ const showModal = ref(false)
 const toggleModal = () => {
   showModal.value = !showModal.value
 }
+
+// Hataları gidermek için eklenen olay işleyici fonksiyonu
+const handleCheckboxChange = (event: Event) => {
+  // event.target'ın bir HTMLInputElement olduğunu TypeScript'e bildiriyoruz
+  if (event.target instanceof HTMLInputElement) {
+    emit('update:modelValue', event.target.checked);
+  }
+};
 </script>
 
 <template>
@@ -35,8 +43,7 @@ const toggleModal = () => {
       type="checkbox"
       :id="id"
       :checked="modelValue"
-      @change="$emit('update:modelValue', $event.target.checked)"
-    />
+      @change="handleCheckboxChange" />
     <label :for="id">
       {{ label }}
     </label>
@@ -61,6 +68,7 @@ const toggleModal = () => {
 </template>
 
 <style scoped>
+/* Genel stil tanımlamaları */
 .terms-info {
   font-size: 0.9rem;
   color: var(--text-color);
@@ -98,6 +106,7 @@ const toggleModal = () => {
   transition: color 0.3s ease;
 }
 
+/* Modal stilleri */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -186,6 +195,7 @@ const toggleModal = () => {
   background-color: var(--primary-hover);
 }
 
+/* Medya sorguları */
 @media (max-width: 480px) {
   .modal {
     width: 95%;
